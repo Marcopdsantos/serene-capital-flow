@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { LayoutDashboard, Users, FileText, Settings, Plus } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NovaAquisicaoDialog } from "@/components/NovaAquisicaoDialog";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -12,10 +13,7 @@ const Dashboard = () => {
       <header className="border-b border-border bg-card">
         <div className="max-w-editorial mx-auto px-8 py-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold font-sans">Acordo Capital — Admin</h1>
-          <Button size="sm" className="font-sans">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Aquisição
-          </Button>
+          <NovaAquisicaoDialog />
         </div>
       </header>
 
