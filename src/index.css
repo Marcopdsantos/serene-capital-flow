@@ -172,9 +172,9 @@ All colors MUST be HSL.
 
   /* Classe para valores monetários */
   .numeric-value {
-    @apply font-mono;
-    font-size: 18px;
-    text-align: right;
+    font-family: 'Inter', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
   }
 }
 

@@ -90,7 +90,7 @@ export const AcordosDetalhadosTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground mb-1">💸 Origem: PIX/Cheque</p>
-              <p className="text-3xl font-sans font-bold numeric-value">
+              <p className="text-3xl font-sans numeric-value">
                 {totalPixCheque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </p>
             </div>
@@ -102,7 +102,7 @@ export const AcordosDetalhadosTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground mb-1">🏦 Origem: Saldo Interno</p>
-              <p className="text-3xl font-sans font-bold numeric-value">
+              <p className="text-3xl font-sans numeric-value">
                 {totalSaldoInterno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </p>
             </div>
