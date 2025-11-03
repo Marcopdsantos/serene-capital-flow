@@ -141,7 +141,7 @@ const Dashboard = () => {
                     <div className="h-px flex-1 mx-3 bg-border/30" />
                     <Wallet className="h-5 w-5 text-primary" />
                   </div>
-                  <CardTitle className="text-3xl font-serif">R$ 1.245.000</CardTitle>
+                  <CardTitle className="text-3xl font-sans font-bold numeric-value">R$ 1.245.000</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Saldo disponível dos clientes</p>
@@ -155,7 +155,7 @@ const Dashboard = () => {
                     <div className="h-px flex-1 mx-3 bg-border/30" />
                     <TrendingUp className="h-5 w-5 text-success" />
                   </div>
-                  <CardTitle className="text-3xl font-serif">R$ 845.000</CardTitle>
+                  <CardTitle className="text-3xl font-sans font-bold numeric-value">R$ 845.000</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Outubro 2024</p>
@@ -169,7 +169,7 @@ const Dashboard = () => {
                     <div className="h-px flex-1 mx-3 bg-border/30" />
                     <Clock className="h-5 w-5 text-pending" />
                   </div>
-                  <CardTitle className="text-3xl font-serif">R$ 125.000</CardTitle>
+                  <CardTitle className="text-3xl font-sans font-bold numeric-value">R$ 125.000</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Aguardando conciliação</p>
@@ -183,7 +183,7 @@ const Dashboard = () => {
                     <div className="h-px flex-1 mx-3 bg-border/30" />
                     <FileText className="h-5 w-5 text-accent" />
                   </div>
-                  <CardTitle className="text-3xl font-serif">23</CardTitle>
+                  <CardTitle className="text-3xl font-sans font-bold numeric-value">23</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Contratos em andamento</p>
@@ -195,12 +195,12 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
               <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-300">
                 <p className="text-sm text-muted-foreground mb-2">💸 Origem: PIX/Cheque</p>
-                <p className="text-3xl font-serif">R$ 445.000</p>
+                <p className="text-3xl font-sans font-bold numeric-value">R$ 445.000</p>
                 <p className="text-xs text-muted-foreground mt-1">15 acordos ativos</p>
               </Card>
               <Card className="p-6 bg-gradient-to-br from-accent/5 to-accent/10 border-accent/20 hover:shadow-lg transition-all duration-300">
                 <p className="text-sm text-muted-foreground mb-2">🏦 Origem: Saldo Interno</p>
-                <p className="text-3xl font-serif">R$ 400.000</p>
+                <p className="text-3xl font-sans font-bold numeric-value">R$ 400.000</p>
                 <p className="text-xs text-muted-foreground mt-1">8 acordos ativos</p>
               </Card>
             </div>
@@ -210,7 +210,7 @@ const Dashboard = () => {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-serif">Acordos por Mês</CardTitle>
+                    <CardTitle className="text-lg font-sans font-bold">Acordos por Mês</CardTitle>
                     <CardDescription>Visualize acordos agrupados por mês para melhor controle do fluxo</CardDescription>
                   </div>
                   <Select value={filtroMes} onValueChange={setFiltroMes}>
@@ -246,7 +246,7 @@ const Dashboard = () => {
             {/* Tabela de Acordos */}
             <Card className="animate-fade-in">
               <CardHeader>
-                <CardTitle className="text-lg font-serif">Acordos Recentes</CardTitle>
+                <CardTitle className="text-lg font-sans font-bold">Acordos Recentes</CardTitle>
                 <CardDescription>Últimas operações realizadas na plataforma</CardDescription>
               </CardHeader>
               <CardContent>
@@ -275,7 +275,7 @@ const Dashboard = () => {
                             {acordo.mes}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-semibold">{acordo.valor}</TableCell>
+                        <TableCell className="text-right font-semibold numeric-value">{acordo.valor}</TableCell>
                         <TableCell className="text-center">
                           {getComprovanteStatus(acordo.comprovante)}
                         </TableCell>

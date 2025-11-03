@@ -90,7 +90,7 @@ export const AcordosDetalhadosTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground mb-1">💸 Origem: PIX/Cheque</p>
-              <p className="text-3xl font-serif">
+              <p className="text-3xl font-sans font-bold numeric-value">
                 {totalPixCheque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </p>
             </div>
@@ -102,7 +102,7 @@ export const AcordosDetalhadosTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground mb-1">🏦 Origem: Saldo Interno</p>
-              <p className="text-3xl font-serif">
+              <p className="text-3xl font-sans font-bold numeric-value">
                 {totalSaldoInterno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </p>
             </div>
@@ -132,16 +132,16 @@ export const AcordosDetalhadosTab = () => {
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="text-left py-4 px-4 text-sm font-medium">Cliente</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Acordo</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Mês Ref.</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Valor Total</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Origem</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Parc. Rest.</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Valor Pago</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Próxima Parcela</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Status</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Observações</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Cliente</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Acordo</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Mês Ref.</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Valor Total</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Origem</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Parc. Rest.</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Valor Pago</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Próxima Parcela</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Status</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Observações</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +157,7 @@ export const AcordosDetalhadosTab = () => {
                     <p className="text-sm">{acordo.mesRef}</p>
                   </td>
                   <td className="py-4 px-4">
-                    <p className="font-medium">{acordo.valorTotal}</p>
+                    <p className="font-semibold numeric-value">{acordo.valorTotal}</p>
                   </td>
                   <td className="py-4 px-4">
                     <Badge variant={acordo.origemPagamento === "PIX/Cheque" ? "default" : "secondary"}>
@@ -168,11 +168,11 @@ export const AcordosDetalhadosTab = () => {
                     <p className="text-sm">{acordo.parcelasRestantes}x</p>
                   </td>
                   <td className="py-4 px-4">
-                    <p className="text-sm text-success-foreground">{acordo.valorPago}</p>
+                    <p className="text-sm text-success-foreground numeric-value">{acordo.valorPago}</p>
                   </td>
                   <td className="py-4 px-4">
                     <div>
-                      <p className="text-sm font-medium">{acordo.proximaParcela}</p>
+                      <p className="text-sm font-semibold numeric-value">{acordo.proximaParcela}</p>
                       <p className="text-xs text-muted-foreground">{acordo.dataProximaParcela}</p>
                     </div>
                   </td>

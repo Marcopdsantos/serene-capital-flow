@@ -24,7 +24,7 @@ export const FluxoCaixaTab = () => {
       {/* Header com descrição e filtros */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-serif mb-2">Fluxo de Caixa</h2>
+          <h2 className="text-2xl font-sans font-bold mb-2">Fluxo de Caixa</h2>
           <p className="text-sm text-muted-foreground max-w-2xl">
             Projeção de fluxo de caixa consolidada — atualizada automaticamente com base nos acordos ativos e conciliados.
           </p>
@@ -59,7 +59,7 @@ export const FluxoCaixaTab = () => {
       {/* Gráfico de Fluxo */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">Visão Temporal</CardTitle>
+          <CardTitle className="text-lg font-sans font-bold">Visão Temporal</CardTitle>
           <CardDescription>Entradas e saídas mensais projetadas</CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,7 +128,7 @@ export const FluxoCaixaTab = () => {
       {/* Tabela Detalhada */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">Detalhamento Mensal</CardTitle>
+          <CardTitle className="text-lg font-sans font-bold">Detalhamento Mensal</CardTitle>
           <CardDescription>Consolidação completa por período</CardDescription>
         </CardHeader>
         <CardContent>
@@ -146,13 +146,13 @@ export const FluxoCaixaTab = () => {
               {dadosFluxo.map((linha) => (
                 <TableRow key={linha.mes} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="font-medium">{linha.mes}</TableCell>
-                  <TableCell className="text-right text-accent font-semibold">
+                  <TableCell className="text-right text-accent font-semibold numeric-value">
                     R$ {linha.entradas.toLocaleString('pt-BR')}
                   </TableCell>
-                  <TableCell className="text-right text-destructive">
+                  <TableCell className="text-right text-destructive numeric-value">
                     R$ {linha.saidas.toLocaleString('pt-BR')}
                   </TableCell>
-                  <TableCell className="text-right text-success font-semibold">
+                  <TableCell className="text-right text-success font-semibold numeric-value">
                     R$ {linha.saldo.toLocaleString('pt-BR')}
                   </TableCell>
                   <TableCell className="text-center">

@@ -154,15 +154,15 @@ export const ComprovantesTab = () => {
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="text-left py-4 px-4 text-sm font-medium">Cliente</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Acordo</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Aquisição</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Data</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Valor Anexo</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Valor Esperado</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Diferença</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Status</th>
-                <th className="text-left py-4 px-4 text-sm font-medium">Ações</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Cliente</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Acordo</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Aquisição</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Data</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Valor Anexo</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Valor Esperado</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Diferença</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Status</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -187,10 +187,10 @@ export const ComprovantesTab = () => {
                       <p className="text-sm">{comp.data}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <p className="font-medium">{comp.valorAnexo}</p>
+                      <p className="font-semibold numeric-value">{comp.valorAnexo}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <p className="text-sm text-muted-foreground">{comp.valorEsperado}</p>
+                      <p className="text-sm text-muted-foreground numeric-value">{comp.valorEsperado}</p>
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant={Math.abs(diferenca) < 1 ? "default" : "destructive"}>
