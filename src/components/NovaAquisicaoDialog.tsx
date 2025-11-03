@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Search, ChevronRight, ChevronLeft, FileText, CheckCircle, CalendarIcon, User, Home, Briefcase } from "lucide-react";
+import { Plus, Search, ChevronRight, ChevronLeft, FileText, CheckCircle, CalendarIcon, User, Home, Briefcase, X } from "lucide-react";
 import { currencyToWords } from "@/lib/numberToWords";
 import {
   Dialog,
@@ -31,6 +31,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+const acordoSchema = z.object({
+  valorAporte: z.string().min(1, "Valor do aporte é obrigatório"),
+  valorParcela: z.string().min(1, "Valor da parcela é obrigatório"),
+  valorTotalReceber: z.string().min(1, "Valor total é obrigatório"),
+  valorAporteExtenso: z.string().optional(),
+  valorParcelaExtenso: z.string().optional(),
+  valorTotalExtenso: z.string().optional(),
+  prazoMeses: z.string().min(1, "Prazo é obrigatório"),
+  diaVencimento: z.string().min(1, "Dia de vencimento é obrigatório"),
+  dataInicioContrato: z.date({ required_error: "Data de início é obrigatória" }),
+  dataPrimeiroPagamento: z.date({ required_error: "Data do 1º pagamento é obrigatória" }),
+  dataUltimoPagamento: z.date({ required_error: "Data do último pagamento é obrigatória" }),
+  metodoPagamento: z.enum(["saldo", "pix", "saldo_pix"], {
+    required_error: "Selecione um método de pagamento",
+  }),
+  observacoes: z.string().max(500, "Observações muito longas").optional(),
+});
 
 const aquisicaoSchema = z.object({
   // Dados Pessoais
@@ -69,24 +87,8 @@ const aquisicaoSchema = z.object({
   agencia: z.string().trim().min(1, "Agência é obrigatória"),
   conta: z.string().trim().min(1, "Conta é obrigatória"),
   
-  // Dados do Investimento
-  valorAporte: z.string().min(1, "Valor do aporte é obrigatório"),
-  valorParcela: z.string().min(1, "Valor da parcela é obrigatório"),
-  valorTotalReceber: z.string().min(1, "Valor total é obrigatório"),
-  valorAporteExtenso: z.string().optional(),
-  valorParcelaExtenso: z.string().optional(),
-  valorTotalExtenso: z.string().optional(),
-  prazoMeses: z.string().min(1, "Prazo é obrigatório"),
-  diaVencimento: z.string().min(1, "Dia de vencimento é obrigatório"),
-  dataInicioContrato: z.date({ required_error: "Data de início é obrigatória" }),
-  dataPrimeiroPagamento: z.date({ required_error: "Data do 1º pagamento é obrigatória" }),
-  dataUltimoPagamento: z.date({ required_error: "Data do último pagamento é obrigatória" }),
-  
-  // Pagamento
-  metodoPagamento: z.enum(["saldo", "pix", "saldo_pix"], {
-    required_error: "Selecione um método de pagamento",
-  }),
-  observacoes: z.string().max(500, "Observações muito longas").optional(),
+  // Array de Acordos
+  acordos: z.array(acordoSchema).min(1, "Adicione ao menos um acordo"),
 });
 
 type AquisicaoFormData = z.infer<typeof aquisicaoSchema>;
@@ -117,44 +119,52 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
     reset,
     watch,
     trigger,
+    control,
   } = useForm<AquisicaoFormData>({
     resolver: zodResolver(aquisicaoSchema),
     defaultValues: {
-      metodoPagamento: "saldo",
       estadoCivil: "",
       estado: "",
       tipoConta: "",
-      diaVencimento: "",
+      acordos: [{
+        valorAporte: "",
+        valorParcela: "",
+        valorTotalReceber: "",
+        valorAporteExtenso: "",
+        valorParcelaExtenso: "",
+        valorTotalExtenso: "",
+        prazoMeses: "",
+        diaVencimento: "",
+        metodoPagamento: "saldo",
+        observacoes: "",
+      }],
     },
   });
 
-  const metodoPagamento = watch("metodoPagamento");
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "acordos",
+  });
+
   const formData = watch();
-  const valorAporte = watch("valorAporte");
-  const valorParcela = watch("valorParcela");
-  const valorTotalReceber = watch("valorTotalReceber");
 
-  // Auto-preencher valores por extenso
+  // Auto-preencher valores por extenso para cada acordo
   useEffect(() => {
-    if (valorAporte) {
-      const extenso = currencyToWords(valorAporte);
-      setValue("valorAporteExtenso", extenso);
-    }
-  }, [valorAporte, setValue]);
-
-  useEffect(() => {
-    if (valorParcela) {
-      const extenso = currencyToWords(valorParcela);
-      setValue("valorParcelaExtenso", extenso);
-    }
-  }, [valorParcela, setValue]);
-
-  useEffect(() => {
-    if (valorTotalReceber) {
-      const extenso = currencyToWords(valorTotalReceber);
-      setValue("valorTotalExtenso", extenso);
-    }
-  }, [valorTotalReceber, setValue]);
+    formData.acordos?.forEach((acordo, index) => {
+      if (acordo.valorAporte) {
+        const extenso = currencyToWords(acordo.valorAporte);
+        setValue(`acordos.${index}.valorAporteExtenso`, extenso);
+      }
+      if (acordo.valorParcela) {
+        const extenso = currencyToWords(acordo.valorParcela);
+        setValue(`acordos.${index}.valorParcelaExtenso`, extenso);
+      }
+      if (acordo.valorTotalReceber) {
+        const extenso = currencyToWords(acordo.valorTotalReceber);
+        setValue(`acordos.${index}.valorTotalExtenso`, extenso);
+      }
+    });
+  }, [formData.acordos, setValue]);
 
   const handleSearch = () => {
     // TODO: Integrar com backend para buscar cliente
@@ -179,10 +189,7 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
         if (isValid) setCurrentStep("investimento");
         break;
       case "investimento":
-        isValid = await trigger([
-          "valorAporte", "valorParcela", "valorTotalReceber", "prazoMeses", "diaVencimento",
-          "dataInicioContrato", "dataPrimeiroPagamento", "dataUltimoPagamento"
-        ]);
+        isValid = await trigger("acordos");
         if (isValid) setCurrentStep("revisao");
         break;
     }
@@ -631,292 +638,393 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
 
   const renderInvestimentoStep = () => (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Dados do Investimento</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Valores, prazos e condições financeiras do contrato
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Dados do Investimento</h3>
+          <p className="text-sm text-muted-foreground">
+            Configure um ou múltiplos acordos — todos farão parte do mesmo contrato
+          </p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Valores</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="valorAporte">Valor do Aporte *</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                R$
-              </span>
-              <Input
-                id="valorAporte"
-                placeholder="0,00"
-                {...register("valorAporte")}
-                onChange={(e) => {
-                  const formatted = formatCurrency(e.target.value);
-                  setValue("valorAporte", formatted);
-                }}
-                className={`pl-10 ${errors.valorAporte ? "border-error" : ""}`}
-              />
+      {fields.map((field, index) => (
+        <Card key={field.id} className="relative">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">
+                Acordo {index + 1} {fields.length > 1 && `de ${fields.length}`}
+              </CardTitle>
+              {fields.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => remove(index)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-            {errors.valorAporte && (
-              <p className="text-sm text-error">{errors.valorAporte.message}</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor={`acordos.${index}.valorAporte`}>Valor do Aporte *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  R$
+                </span>
+                <Input
+                  id={`acordos.${index}.valorAporte`}
+                  placeholder="0,00"
+                  {...register(`acordos.${index}.valorAporte`)}
+                  onChange={(e) => {
+                    const formatted = formatCurrency(e.target.value);
+                    setValue(`acordos.${index}.valorAporte`, formatted);
+                  }}
+                  className={`pl-10 ${errors.acordos?.[index]?.valorAporte ? "border-error" : ""}`}
+                />
+              </div>
+              {errors.acordos?.[index]?.valorAporte && (
+                <p className="text-sm text-error">{errors.acordos[index]?.valorAporte?.message}</p>
+              )}
+            </div>
+
+            {formData.acordos?.[index]?.valorAporteExtenso && (
+              <div className="bg-muted p-3 rounded-md">
+                <p className="text-sm text-muted-foreground capitalize">
+                  {formData.acordos[index].valorAporteExtenso}
+                </p>
+              </div>
             )}
-          </div>
 
-          {formData.valorAporteExtenso && (
-            <div className="bg-muted p-3 rounded-md">
-              <p className="text-sm text-muted-foreground capitalize">
-                {formData.valorAporteExtenso}
-              </p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="valorParcela">Valor da Parcela (R$) *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  R$
-                </span>
-                <Input
-                  id="valorParcela"
-                  placeholder="0,00"
-                  {...register("valorParcela")}
-                  onChange={(e) => {
-                    const formatted = formatCurrency(e.target.value);
-                    setValue("valorParcela", formatted);
-                  }}
-                  className={`pl-10 ${errors.valorParcela ? "border-error" : ""}`}
-                />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.valorParcela`}>Valor da Parcela *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    R$
+                  </span>
+                  <Input
+                    id={`acordos.${index}.valorParcela`}
+                    placeholder="0,00"
+                    {...register(`acordos.${index}.valorParcela`)}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setValue(`acordos.${index}.valorParcela`, formatted);
+                    }}
+                    className={`pl-10 ${errors.acordos?.[index]?.valorParcela ? "border-error" : ""}`}
+                  />
+                </div>
+                {errors.acordos?.[index]?.valorParcela && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.valorParcela?.message}</p>
+                )}
               </div>
-              {errors.valorParcela && (
-                <p className="text-sm text-error">{errors.valorParcela.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="valorTotalReceber">Valor Total a Receber (R$) *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  R$
-                </span>
-                <Input
-                  id="valorTotalReceber"
-                  placeholder="0,00"
-                  {...register("valorTotalReceber")}
-                  onChange={(e) => {
-                    const formatted = formatCurrency(e.target.value);
-                    setValue("valorTotalReceber", formatted);
-                  }}
-                  className={`pl-10 ${errors.valorTotalReceber ? "border-error" : ""}`}
-                />
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.valorTotalReceber`}>Valor Total a Receber *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    R$
+                  </span>
+                  <Input
+                    id={`acordos.${index}.valorTotalReceber`}
+                    placeholder="0,00"
+                    {...register(`acordos.${index}.valorTotalReceber`)}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setValue(`acordos.${index}.valorTotalReceber`, formatted);
+                    }}
+                    className={`pl-10 ${errors.acordos?.[index]?.valorTotalReceber ? "border-error" : ""}`}
+                  />
+                </div>
+                {errors.acordos?.[index]?.valorTotalReceber && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.valorTotalReceber?.message}</p>
+                )}
               </div>
-              {errors.valorTotalReceber && (
-                <p className="text-sm text-error">{errors.valorTotalReceber.message}</p>
+            </div>
+
+            {formData.acordos?.[index]?.valorParcelaExtenso && (
+              <div className="bg-muted p-3 rounded-md">
+                <p className="text-xs text-muted-foreground mb-1">Valor da Parcela (por extenso)</p>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {formData.acordos[index].valorParcelaExtenso}
+                </p>
+              </div>
+            )}
+
+            {formData.acordos?.[index]?.valorTotalExtenso && (
+              <div className="bg-muted p-3 rounded-md">
+                <p className="text-xs text-muted-foreground mb-1">Valor Total a Receber (por extenso)</p>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {formData.acordos[index].valorTotalExtenso}
+                </p>
+              </div>
+            )}
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.prazoMeses`}>Prazo (meses) *</Label>
+                <Input
+                  id={`acordos.${index}.prazoMeses`}
+                  type="number"
+                  placeholder="12"
+                  {...register(`acordos.${index}.prazoMeses`)}
+                  className={errors.acordos?.[index]?.prazoMeses ? "border-error" : ""}
+                />
+                {errors.acordos?.[index]?.prazoMeses && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.prazoMeses?.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.diaVencimento`}>Dia de Vencimento *</Label>
+                <Select
+                  value={formData.acordos?.[index]?.diaVencimento}
+                  onValueChange={(value) => setValue(`acordos.${index}.diaVencimento`, value)}
+                >
+                  <SelectTrigger id={`acordos.${index}.diaVencimento`} className={errors.acordos?.[index]?.diaVencimento ? "border-error" : ""}>
+                    <SelectValue placeholder="Selecione o dia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((dia) => (
+                      <SelectItem key={dia} value={dia.toString()}>
+                        Dia {dia}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.acordos?.[index]?.diaVencimento && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.diaVencimento?.message}</p>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <Label htmlFor={`acordos.${index}.dataInicioContrato`}>Data de Início do Contrato *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.acordos?.[index]?.dataInicioContrato && "text-muted-foreground",
+                      errors.acordos?.[index]?.dataInicioContrato && "border-error"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.acordos?.[index]?.dataInicioContrato ? (
+                      format(formData.acordos[index].dataInicioContrato, "dd/MM/yyyy", { locale: ptBR })
+                    ) : (
+                      <span>dd/mm/aaaa</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.acordos?.[index]?.dataInicioContrato}
+                    onSelect={(date) => date && setValue(`acordos.${index}.dataInicioContrato`, date)}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              {errors.acordos?.[index]?.dataInicioContrato && (
+                <p className="text-sm text-error">{errors.acordos[index]?.dataInicioContrato?.message}</p>
               )}
             </div>
-          </div>
 
-          {formData.valorParcelaExtenso && (
-            <div className="bg-muted p-3 rounded-md">
-              <p className="text-xs text-muted-foreground mb-1">Valor da Parcela (por extenso)</p>
-              <p className="text-sm text-muted-foreground capitalize">
-                {formData.valorParcelaExtenso}
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.dataPrimeiroPagamento`}>Data do 1º Pagamento *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.acordos?.[index]?.dataPrimeiroPagamento && "text-muted-foreground",
+                        errors.acordos?.[index]?.dataPrimeiroPagamento && "border-error"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.acordos?.[index]?.dataPrimeiroPagamento ? (
+                        format(formData.acordos[index].dataPrimeiroPagamento, "dd/MM/yyyy", { locale: ptBR })
+                      ) : (
+                        <span>dd/mm/aaaa</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.acordos?.[index]?.dataPrimeiroPagamento}
+                      onSelect={(date) => date && setValue(`acordos.${index}.dataPrimeiroPagamento`, date)}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                {errors.acordos?.[index]?.dataPrimeiroPagamento && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.dataPrimeiroPagamento?.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`acordos.${index}.dataUltimoPagamento`}>Data do Último Pagamento *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.acordos?.[index]?.dataUltimoPagamento && "text-muted-foreground",
+                        errors.acordos?.[index]?.dataUltimoPagamento && "border-error"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.acordos?.[index]?.dataUltimoPagamento ? (
+                        format(formData.acordos[index].dataUltimoPagamento, "dd/MM/yyyy", { locale: ptBR })
+                      ) : (
+                        <span>dd/mm/aaaa</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.acordos?.[index]?.dataUltimoPagamento}
+                      onSelect={(date) => date && setValue(`acordos.${index}.dataUltimoPagamento`, date)}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                {errors.acordos?.[index]?.dataUltimoPagamento && (
+                  <p className="text-sm text-error">{errors.acordos[index]?.dataUltimoPagamento?.message}</p>
+                )}
+              </div>
             </div>
-          )}
 
-          {formData.valorTotalExtenso && (
-            <div className="bg-muted p-3 rounded-md">
-              <p className="text-xs text-muted-foreground mb-1">Valor Total a Receber (por extenso)</p>
-              <p className="text-sm text-muted-foreground capitalize">
-                {formData.valorTotalExtenso}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            <Separator />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Prazo e Vencimento</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="prazoMeses">Prazo (meses) *</Label>
-              <Input
-                id="prazoMeses"
-                type="number"
-                placeholder="12"
-                {...register("prazoMeses")}
-                className={errors.prazoMeses ? "border-error" : ""}
-              />
-              {errors.prazoMeses && (
-                <p className="text-sm text-error">{errors.prazoMeses.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="diaVencimento">Dia de Vencimento *</Label>
+              <Label htmlFor={`acordos.${index}.metodoPagamento`}>Método de Pagamento *</Label>
               <Select
-                value={formData.diaVencimento}
-                onValueChange={(value) => setValue("diaVencimento", value)}
+                value={formData.acordos?.[index]?.metodoPagamento}
+                onValueChange={(value) => setValue(`acordos.${index}.metodoPagamento`, value as "saldo" | "pix" | "saldo_pix")}
               >
-                <SelectTrigger id="diaVencimento" className={errors.diaVencimento ? "border-error" : ""}>
-                  <SelectValue placeholder="Selecione o dia" />
+                <SelectTrigger id={`acordos.${index}.metodoPagamento`}>
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 28 }, (_, i) => i + 1).map((dia) => (
-                    <SelectItem key={dia} value={dia.toString()}>
-                      Dia {dia}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="saldo">Saldo Interno</SelectItem>
+                  <SelectItem value="pix">PIX/Transferência</SelectItem>
+                  <SelectItem value="saldo_pix">Saldo + PIX</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.diaVencimento && (
-                <p className="text-sm text-error">{errors.diaVencimento.message}</p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Datas do Contrato</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="dataInicioContrato">Data de Início do Contrato *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !formData.dataInicioContrato && "text-muted-foreground",
-                    errors.dataInicioContrato && "border-error"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.dataInicioContrato ? (
-                    format(formData.dataInicioContrato, "dd/MM/yyyy", { locale: ptBR })
-                  ) : (
-                    <span>dd/mm/aaaa</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.dataInicioContrato}
-                  onSelect={(date) => date && setValue("dataInicioContrato", date)}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            {errors.dataInicioContrato && (
-              <p className="text-sm text-error">{errors.dataInicioContrato.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="dataPrimeiroPagamento">Data do 1º Pagamento *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.dataPrimeiroPagamento && "text-muted-foreground",
-                      errors.dataPrimeiroPagamento && "border-error"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.dataPrimeiroPagamento ? (
-                      format(formData.dataPrimeiroPagamento, "dd/MM/yyyy", { locale: ptBR })
-                    ) : (
-                      <span>dd/mm/aaaa</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.dataPrimeiroPagamento}
-                    onSelect={(date) => date && setValue("dataPrimeiroPagamento", date)}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-              {errors.dataPrimeiroPagamento && (
-                <p className="text-sm text-error">{errors.dataPrimeiroPagamento.message}</p>
+              {errors.acordos?.[index]?.metodoPagamento && (
+                <p className="text-sm text-error">{errors.acordos[index]?.metodoPagamento?.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dataUltimoPagamento">Data do Último Pagamento *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.dataUltimoPagamento && "text-muted-foreground",
-                      errors.dataUltimoPagamento && "border-error"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.dataUltimoPagamento ? (
-                      format(formData.dataUltimoPagamento, "dd/MM/yyyy", { locale: ptBR })
-                    ) : (
-                      <span>dd/mm/aaaa</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.dataUltimoPagamento}
-                    onSelect={(date) => date && setValue("dataUltimoPagamento", date)}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-              {errors.dataUltimoPagamento && (
-                <p className="text-sm text-error">{errors.dataUltimoPagamento.message}</p>
-              )}
+              <Label htmlFor={`acordos.${index}.observacoes`}>Observações</Label>
+              <Textarea
+                id={`acordos.${index}.observacoes`}
+                placeholder="Ex: Pix até dia 25, desconto 2k, saldo a compensar"
+                {...register(`acordos.${index}.observacoes`)}
+                className="resize-none"
+                rows={2}
+              />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => append({
+          valorAporte: "",
+          valorParcela: "",
+          valorTotalReceber: "",
+          valorAporteExtenso: "",
+          valorParcelaExtenso: "",
+          valorTotalExtenso: "",
+          prazoMeses: "",
+          diaVencimento: "",
+          metodoPagamento: "saldo",
+          observacoes: "",
+        })}
+        className="w-full"
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Adicionar Outro Acordo ao Contrato
+      </Button>
 
       <Card className="bg-muted/50">
         <CardContent className="p-4">
           <p className="text-sm text-muted-foreground">
-            <strong>Atenção:</strong> Na próxima etapa, você poderá revisar todos os dados inseridos 
-            antes de gerar o contrato final e enviá-lo para assinatura digital.
+            <strong>Contrato unificado:</strong> Todos os acordos adicionados farão parte do mesmo contrato, 
+            compartilhando os dados do cliente e gerando um único documento para assinatura digital.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 
-  const renderRevisaoStep = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Revisão Final</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Confira todas as informações antes de gerar a aquisição.
-        </p>
-      </div>
+  const renderRevisaoStep = () => {
+    const totalAportes = formData.acordos?.reduce((sum, acordo) => {
+      const valor = parseFloat(acordo.valorAporte?.replace(/\./g, "").replace(",", ".") || "0");
+      return sum + valor;
+    }, 0) || 0;
+
+    const totalReceber = formData.acordos?.reduce((sum, acordo) => {
+      const valor = parseFloat(acordo.valorTotalReceber?.replace(/\./g, "").replace(",", ".") || "0");
+      return sum + valor;
+    }, 0) || 0;
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Revisão Final</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Confira todas as informações antes de gerar a aquisição com {formData.acordos?.length || 0} acordo(s).
+          </p>
+        </div>
+
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-base">Resumo Financeiro do Contrato</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Total de Acordos:</span>
+              <span className="font-semibold">{formData.acordos?.length || 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Soma dos Aportes:</span>
+              <span className="font-semibold">
+                R$ {totalAportes.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Soma Total a Receber:</span>
+              <span className="font-semibold text-primary">
+                R$ {totalReceber.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
 
       <Card>
         <CardHeader>
@@ -996,91 +1104,76 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Dados do Investimento</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Valor do Aporte:</span>
-            <span className="font-medium">R$ {formData.valorAporte}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Valor da Parcela:</span>
-            <span className="font-medium">R$ {formData.valorParcela}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Valor Total a Receber:</span>
-            <span className="font-medium">R$ {formData.valorTotalReceber}</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Prazo:</span>
-            <span className="font-medium">{formData.prazoMeses} meses</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Dia de Vencimento:</span>
-            <span className="font-medium">Dia {formData.diaVencimento}</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Data de Início:</span>
-            <span className="font-medium">
-              {formData.dataInicioContrato && format(formData.dataInicioContrato, "dd/MM/yyyy")}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">1º Pagamento:</span>
-            <span className="font-medium">
-              {formData.dataPrimeiroPagamento && format(formData.dataPrimeiroPagamento, "dd/MM/yyyy")}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Último Pagamento:</span>
-            <span className="font-medium">
-              {formData.dataUltimoPagamento && format(formData.dataUltimoPagamento, "dd/MM/yyyy")}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Pagamento</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="metodoPagamento">Método de Pagamento</Label>
-            <Select
-              value={metodoPagamento}
-              onValueChange={(value) =>
-                setValue("metodoPagamento", value as "saldo" | "pix" | "saldo_pix")
-              }
-            >
-              <SelectTrigger id="metodoPagamento">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="saldo">Saldo</SelectItem>
-                <SelectItem value="pix">PIX</SelectItem>
-                <SelectItem value="saldo_pix">Saldo + PIX</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="observacoes">Observações (opcional)</Label>
-            <Textarea
-              id="observacoes"
-              placeholder="Informações adicionais sobre a aquisição..."
-              rows={3}
-              {...register("observacoes")}
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+      {formData.acordos?.map((acordo, index) => (
+        <Card key={index}>
+          <CardHeader>
+            <CardTitle className="text-base">Acordo {index + 1}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Valor do Aporte:</span>
+              <span className="font-medium">R$ {acordo.valorAporte}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Valor da Parcela:</span>
+              <span className="font-medium">R$ {acordo.valorParcela}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Valor Total a Receber:</span>
+              <span className="font-medium">R$ {acordo.valorTotalReceber}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Prazo:</span>
+              <span className="font-medium">{acordo.prazoMeses} meses</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Dia de Vencimento:</span>
+              <span className="font-medium">Dia {acordo.diaVencimento}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Data de Início:</span>
+              <span className="font-medium">
+                {acordo.dataInicioContrato && format(acordo.dataInicioContrato, "dd/MM/yyyy")}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">1º Pagamento:</span>
+              <span className="font-medium">
+                {acordo.dataPrimeiroPagamento && format(acordo.dataPrimeiroPagamento, "dd/MM/yyyy")}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Último Pagamento:</span>
+              <span className="font-medium">
+                {acordo.dataUltimoPagamento && format(acordo.dataUltimoPagamento, "dd/MM/yyyy")}
+              </span>
+            </div>
+            <Separator />
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Método de Pagamento:</span>
+              <span className="font-medium capitalize">
+                {acordo.metodoPagamento === "saldo" ? "Saldo Interno" : 
+                 acordo.metodoPagamento === "pix" ? "PIX/Transferência" : 
+                 "Saldo + PIX"}
+              </span>
+            </div>
+            {acordo.observacoes && (
+              <>
+                <Separator />
+                <div className="space-y-1">
+                  <span className="text-muted-foreground">Observações:</span>
+                  <p className="font-medium text-xs">{acordo.observacoes}</p>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+      </div>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
