@@ -7,7 +7,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border">
+      <nav className="border-b border-border bg-white dark:bg-card">
         <div className="max-w-editorial mx-auto px-8 py-6 flex items-center justify-between">
           <img src={logo} alt="Acordo Capital" className="h-10" />
           <div className="flex items-center gap-4">
