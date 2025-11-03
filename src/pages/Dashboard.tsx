@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { LayoutDashboard, FileText, TrendingUp, Clock, Check, AlertCircle, FileCheck, Pencil } from "lucide-react";
+import { LayoutDashboard, FileText, TrendingUp, Clock, Check, AlertCircle, FileCheck, Pencil, Wallet, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NovaAquisicaoDialog } from "@/components/NovaAquisicaoDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FluxoCaixaTab } from "@/components/FluxoCaixaTab";
 import { ComprovantesTab } from "@/components/ComprovantesTab";
+import { AcordosDetalhadosTab } from "@/components/AcordosDetalhadosTab";
 import { ComprovanteModal } from "@/components/ComprovanteModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -109,10 +111,14 @@ const Dashboard = () => {
 
       <div className="max-w-editorial mx-auto px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-muted">
+          <TabsList className="bg-muted grid grid-cols-4">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Painel Geral
+            </TabsTrigger>
+            <TabsTrigger value="acordos" className="gap-2">
+              <Users className="h-4 w-4" />
+              Acordos Detalhados
             </TabsTrigger>
             <TabsTrigger value="fluxo" className="gap-2">
               <TrendingUp className="h-4 w-4" />
@@ -128,44 +134,74 @@ const Dashboard = () => {
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Grid - Resumo Financeiro */}
             <div className="grid md:grid-cols-4 gap-6 animate-fade-in">
-              <Card className="hover:shadow-editorial transition-shadow">
+              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-card to-muted/20 border-border/50">
                 <CardHeader className="pb-3">
-                  <CardDescription>Total em Caixa Atual</CardDescription>
-                  <CardTitle className="text-3xl font-serif">R$ 2.4M</CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <CardDescription>Total em Caixa Atual</CardDescription>
+                    <div className="h-px flex-1 mx-3 bg-border/30" />
+                    <Wallet className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-3xl font-serif">R$ 1.245.000</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-success">+12.5% este mês</p>
+                  <p className="text-sm text-muted-foreground">Saldo disponível dos clientes</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-editorial transition-shadow">
+              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-card to-muted/20 border-border/50">
                 <CardHeader className="pb-3">
-                  <CardDescription>Entradas Previstas — Mês Atual</CardDescription>
-                  <CardTitle className="text-3xl font-serif">R$ 1.1M</CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <CardDescription>Entradas Previstas no Mês</CardDescription>
+                    <div className="h-px flex-1 mx-3 bg-border/30" />
+                    <TrendingUp className="h-5 w-5 text-success" />
+                  </div>
+                  <CardTitle className="text-3xl font-serif">R$ 845.000</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">47 acordos ativos</p>
+                  <p className="text-sm text-muted-foreground">Outubro 2024</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-editorial transition-shadow">
+              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-card to-muted/20 border-border/50">
                 <CardHeader className="pb-3">
-                  <CardDescription>Pagamentos Pendentes</CardDescription>
-                  <CardTitle className="text-3xl font-serif">R$ 340K</CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <CardDescription>Pagamentos Pendentes</CardDescription>
+                    <div className="h-px flex-1 mx-3 bg-border/30" />
+                    <Clock className="h-5 w-5 text-pending" />
+                  </div>
+                  <CardTitle className="text-3xl font-serif">R$ 125.000</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-pending-foreground">6 pendentes de conciliação</p>
+                  <p className="text-sm text-muted-foreground">Aguardando conciliação</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-editorial transition-shadow">
+              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-card to-muted/20 border-border/50">
                 <CardHeader className="pb-3">
-                  <CardDescription>Acordos Ativos Totais</CardDescription>
-                  <CardTitle className="text-3xl font-serif">48</CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <CardDescription>Acordos Ativos Totais</CardDescription>
+                    <div className="h-px flex-1 mx-3 bg-border/30" />
+                    <FileText className="h-5 w-5 text-accent" />
+                  </div>
+                  <CardTitle className="text-3xl font-serif">23</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-success">Taxa de conciliação: 99.8%</p>
+                  <p className="text-sm text-muted-foreground">Contratos em andamento</p>
                 </CardContent>
+              </Card>
+            </div>
+
+            {/* Cards Segmentados por Origem */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+              <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-300">
+                <p className="text-sm text-muted-foreground mb-2">💸 Origem: PIX/Cheque</p>
+                <p className="text-3xl font-serif">R$ 445.000</p>
+                <p className="text-xs text-muted-foreground mt-1">15 acordos ativos</p>
+              </Card>
+              <Card className="p-6 bg-gradient-to-br from-accent/5 to-accent/10 border-accent/20 hover:shadow-lg transition-all duration-300">
+                <p className="text-sm text-muted-foreground mb-2">🏦 Origem: Saldo Interno</p>
+                <p className="text-3xl font-serif">R$ 400.000</p>
+                <p className="text-xs text-muted-foreground mt-1">8 acordos ativos</p>
               </Card>
             </div>
 
@@ -192,14 +228,14 @@ const Dashboard = () => {
               </CardHeader>
               {filtroMes !== "todos" && (
                 <CardContent className="pt-0 pb-4">
-                  <div className="flex items-center gap-4 p-4 rounded-lg bg-accent/10 border border-accent/20">
+                  <div className="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 animate-fade-in">
                     <TrendingUp className="h-5 w-5 text-accent-foreground" />
                     <div>
                       <p className="text-sm font-medium">
-                        {filtroMes === "2024-10" ? "Outubro" : filtroMes === "2024-11" ? "Novembro" : "Dezembro"} 2024
+                        📆 {filtroMes === "2024-10" ? "Outubro" : filtroMes === "2024-11" ? "Novembro" : "Dezembro"} 2024: {acordosFiltrados.length} acordos — R$ {totalMes.toLocaleString('pt-BR')}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {acordosFiltrados.length} acordos • R$ {totalMes.toLocaleString('pt-BR')}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Visualize acordos agrupados por mês para melhor controle do fluxo
                       </p>
                     </div>
                   </div>
@@ -248,12 +284,29 @@ const Dashboard = () => {
                             <Input
                               defaultValue={observacoes[acordo.id] || ""}
                               autoFocus
-                              onBlur={(e) => salvarObservacao(acordo.id, e.target.value)}
+                              onBlur={(e) => {
+                                salvarObservacao(acordo.id, e.target.value);
+                                setTimeout(() => {
+                                  toast({
+                                    description: `✓ Salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático`,
+                                    duration: 2000,
+                                    className: "animate-fade-in"
+                                  });
+                                }, 300);
+                              }}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                   salvarObservacao(acordo.id, e.currentTarget.value);
+                                  setTimeout(() => {
+                                    toast({
+                                      description: `✓ Salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático`,
+                                      duration: 2000,
+                                      className: "animate-fade-in"
+                                    });
+                                  }, 300);
                                 }
                               }}
+                              placeholder="Ex: Pix até dia 25, desconto 2k, saldo a compensar."
                               className="h-8 text-xs"
                             />
                           ) : (
@@ -262,14 +315,14 @@ const Dashboard = () => {
                               onClick={() => setEditandoObs(acordo.id)}
                             >
                               <p className="text-sm text-muted-foreground flex-1">
-                                {observacoes[acordo.id] || "Ex: Pix até dia 25, desconto 2k..."}
+                                {observacoes[acordo.id] || "Use notas rápidas para lembrar ajustes e pendências"}
                               </p>
                               <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                           )}
                           {observacoes[acordo.id] && editandoObs !== acordo.id && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              Editado às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              Editado às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático
                             </p>
                           )}
                         </TableCell>
@@ -292,13 +345,18 @@ const Dashboard = () => {
             </Card>
           </TabsContent>
 
+          {/* Aba Acordos Detalhados */}
+          <TabsContent value="acordos" className="animate-fade-in">
+            <AcordosDetalhadosTab />
+          </TabsContent>
+
           {/* Aba Fluxo de Caixa */}
-          <TabsContent value="fluxo">
+          <TabsContent value="fluxo" className="animate-fade-in">
             <FluxoCaixaTab />
           </TabsContent>
 
           {/* Aba Comprovantes */}
-          <TabsContent value="comprovantes">
+          <TabsContent value="comprovantes" className="animate-fade-in">
             <ComprovantesTab />
           </TabsContent>
         </Tabs>
@@ -308,7 +366,7 @@ const Dashboard = () => {
       <ComprovanteModal
         open={comprovanteModal.open}
         onOpenChange={(open) => setComprovanteModal({ open, acordo: null })}
-        acordo={comprovanteModal.acordo || { id: "1", cliente: "Cliente 1", valor: "R$ 50.000" }}
+        acordo={comprovanteModal.acordo || { id: "1", cliente: "Cliente 1", valor: "R$ 50.000", aquisicao: "AQ-2024-001" }}
       />
     </div>
   );

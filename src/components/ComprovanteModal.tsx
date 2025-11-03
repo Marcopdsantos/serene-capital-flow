@@ -19,6 +19,7 @@ interface ComprovanteModalProps {
     id: string;
     cliente: string;
     valor: string;
+    aquisicao?: string;
   };
 }
 
@@ -67,7 +68,8 @@ export const ComprovanteModal = ({ open, onOpenChange, acordo }: ComprovanteModa
         
         toast({
           title: "✓ Comprovante anexado",
-          description: "O arquivo foi registrado com sucesso no histórico.",
+          description: "Comprovante recebido — aguardando conciliação.",
+          className: "animate-fade-in"
         });
       }
     });
@@ -80,13 +82,29 @@ export const ComprovanteModal = ({ open, onOpenChange, acordo }: ComprovanteModa
   };
 
   const aprovarComprovante = (id: string) => {
+    const comprovante = comprovantes.find(c => c.id === id);
+    if (!comprovante) return;
+
+    // Simular validação de valor
+    const valorAcordo = parseFloat(acordo.valor.replace(/[^\d,]/g, "").replace(",", "."));
+    const valorComprovante = 149500; // Simular valor do comprovante
+    const diferenca = ((valorComprovante - valorAcordo) / valorAcordo) * 100;
+
+    if (Math.abs(diferenca) > 1) {
+      const confirmar = window.confirm(
+        `Acordo ${acordo.id} — Valor esperado: ${acordo.valor} — Comprovante anexo: R$ 149.500,00 (diferença de ${diferenca.toFixed(2)}%). Confirmar conciliação parcial?`
+      );
+      if (!confirmar) return;
+    }
+
     setComprovantes(prev =>
       prev.map(c => c.id === id ? { ...c, status: "aprovado" as const } : c)
     );
     
     toast({
       title: "✓ Comprovante conciliado",
-      description: "Registro aprovado e vinculado ao acordo.",
+      description: "Pagamento confirmado — valores atualizados no fluxo.",
+      className: "animate-fade-in"
     });
   };
 
@@ -106,6 +124,11 @@ export const ComprovanteModal = ({ open, onOpenChange, acordo }: ComprovanteModa
           <DialogTitle className="text-2xl font-serif">Comprovantes — {acordo.cliente}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Envie o comprovante recebido do cliente. O sistema registra automaticamente no histórico e vincula ao acordo.
+            {acordo.aquisicao && (
+              <span className="block mt-1 text-xs">
+                Aquisição: <span className="font-medium">{acordo.aquisicao}</span> • Valor esperado: <span className="font-medium">{acordo.valor}</span>
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
