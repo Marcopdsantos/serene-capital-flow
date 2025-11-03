@@ -31,7 +31,7 @@ const ClientPortal = () => {
         <Card className="shadow-editorial animate-slide-up border-2">
           <CardHeader className="pb-8">
             <CardDescription className="text-base">Saldo Total Disponível</CardDescription>
-            <CardTitle className="text-7xl font-sans numeric-value mt-4">
+            <CardTitle className="text-7xl font-sans mt-4" style={{ fontWeight: 500 }}>
               R$ 127.450,00
             </CardTitle>
             <p className="text-muted-foreground mt-4 text-lg">
@@ -61,7 +61,7 @@ const ClientPortal = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardDescription>Acordo #1001</CardDescription>
-                    <CardTitle className="text-3xl font-sans numeric-value mt-2">R$ 50.000,00</CardTitle>
+                    <CardTitle className="text-3xl font-sans mt-2" style={{ fontWeight: 500 }}>R$ 50.000,00</CardTitle>
                   </div>
                   <span className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-success/20 text-success-foreground font-medium">
                     <CheckCircle2 className="h-4 w-4" />
@@ -70,19 +70,15 @@ const ClientPortal = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Taxa</p>
-                    <p className="font-semibold">1.8% a.m.</p>
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Parcelas</p>
-                    <p className="font-semibold">12 de 24</p>
+                    <p className="font-semibold">10 parcelas</p>
                   </div>
                 </div>
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground">Próximo crédito</p>
-                  <p className="font-medium numeric-value">Amanhã, 05h00 — R$ 900,00</p>
+                  <p className="font-medium" style={{ fontWeight: 500 }}>Amanhã, 05h00 — R$ 900,00</p>
                 </div>
               </CardContent>
             </Card>
@@ -92,7 +88,7 @@ const ClientPortal = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardDescription>Acordo #1002</CardDescription>
-                    <CardTitle className="text-3xl font-sans numeric-value mt-2">R$ 75.000,00</CardTitle>
+                    <CardTitle className="text-3xl font-sans mt-2" style={{ fontWeight: 500 }}>R$ 75.000,00</CardTitle>
                   </div>
                   <span className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-success/20 text-success-foreground font-medium">
                     <CheckCircle2 className="h-4 w-4" />
@@ -101,19 +97,15 @@ const ClientPortal = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Taxa</p>
-                    <p className="font-semibold">2.0% a.m.</p>
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Parcelas</p>
-                    <p className="font-semibold">8 de 18</p>
+                    <p className="font-semibold">10 parcelas</p>
                   </div>
                 </div>
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground">Próximo crédito</p>
-                  <p className="font-medium numeric-value">Amanhã, 05h00 — R$ 1.500,00</p>
+                  <p className="font-medium" style={{ fontWeight: 500 }}>Amanhã, 05h00 — R$ 1.500,00</p>
                 </div>
               </CardContent>
             </Card>
@@ -154,9 +146,9 @@ const ClientPortal = () => {
                         <p className="text-sm text-muted-foreground">{tx.time}</p>
                       </div>
                     </div>
-                    <p className={`font-semibold text-lg numeric-value ${
+                    <p className={`font-semibold text-lg ${
                       tx.type === "credit" ? "text-success" : "text-foreground"
-                    }`}>
+                    }`} style={{ fontWeight: 500 }}>
                       {tx.value}
                     </p>
                   </div>
