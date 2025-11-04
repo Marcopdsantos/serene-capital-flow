@@ -28,21 +28,21 @@ interface Aquisicao {
 const statusConfig = {
   aguardando_assinatura: {
     label: "Aguardando Assinatura",
-    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
     icon: Clock,
     acao: "Enviar Contrato",
     acaoIcon: Mail,
   },
   aguardando_comprovante: {
     label: "Aguardando Comprovante",
-    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
     icon: Paperclip,
     acao: "Anexar Comprovante",
     acaoIcon: Paperclip,
   },
   pendente_conciliacao: {
     label: "Pendente Conciliação",
-    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
     icon: Clock,
     acao: "Conciliar Pagamento",
     acaoAlternativa: "Conciliar Saldo Interno",
@@ -50,7 +50,7 @@ const statusConfig = {
   },
   ativo: {
     label: "Ativo",
-    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
     icon: CheckCircle,
     acao: "Ver Detalhes",
     acaoIcon: Eye,
@@ -354,7 +354,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                         <TableCell>
                           <button
                             onClick={() => setModalCliente({ open: true, cliente: clientesData[aquisicao.comprador as keyof typeof clientesData] })}
-                            className="font-medium text-blue-600 dark:text-blue-400 hover:underline text-left"
+                            className="font-medium text-blue-600 dark:text-blue-400 hover:underline transition-colors text-left"
                           >
                             {aquisicao.comprador} <span className="text-xs text-slate-500 dark:text-slate-400">({formatarData(aquisicao.dataInicio)})</span>
                           </button>
@@ -368,8 +368,8 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                         <TableCell>
                           <p className="text-sm text-slate-600 dark:text-slate-400">{aquisicao.detalhePagamento}</p>
                         </TableCell>
-                        <TableCell className="text-center">
-                          <Badge className={`${config.color} border font-normal px-3 py-1 min-w-[200px] justify-center`}>
+                        <TableCell>
+                          <Badge className={`${config.color} border font-normal px-3 py-1 min-w-[200px] inline-flex items-center`}>
                             <StatusIcon className="h-4 w-4 mr-2" strokeWidth={2} />
                             {config.label}
                           </Badge>
