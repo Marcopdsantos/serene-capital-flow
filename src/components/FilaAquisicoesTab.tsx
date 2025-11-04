@@ -326,9 +326,9 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Aporte</TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Total a Receber</TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Detalhes do Pagamento</TableHead>
-                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">Status</TableHead>
+                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Notas</TableHead>
-                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">Ação</TableHead>
+                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Ação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -410,15 +410,15 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell>
                           <Button
                             size="sm"
                             variant={aquisicao.status === "ativo" ? "outline" : "default"}
                             onClick={() => handleAcao(aquisicao)}
                             className={`whitespace-nowrap h-9 px-4 ${
                               aquisicao.status === "ativo" 
-                                ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" 
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                                ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent" 
+                                : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
                             }`}
                           >
                             <AcaoIcon className="h-4 w-4 mr-2" strokeWidth={2} />
