@@ -365,7 +365,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                         <TableCell className="font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[140px]">
                           {aquisicao.totalReceber}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="whitespace-nowrap min-w-[180px]">
                           <p className="text-sm text-slate-600 dark:text-slate-400">{aquisicao.detalhePagamento}</p>
                         </TableCell>
                         <TableCell>
@@ -415,7 +415,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             size="sm"
                             variant={aquisicao.status === "ativo" ? "outline" : "default"}
                             onClick={() => handleAcao(aquisicao)}
-                            className={`whitespace-nowrap h-9 px-4 w-[200px] ${
+                            className={`whitespace-nowrap h-9 px-4 w-[200px] text-xs ${
                               aquisicao.status === "ativo" 
                                 ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent" 
                                 : ""
