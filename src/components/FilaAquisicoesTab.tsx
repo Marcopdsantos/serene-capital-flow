@@ -418,7 +418,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             className={`whitespace-nowrap h-9 px-4 ${
                               aquisicao.status === "ativo" 
                                 ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent" 
-                                : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                                : ""
                             }`}
                           >
                             <AcaoIcon className="h-4 w-4 mr-2" strokeWidth={2} />
