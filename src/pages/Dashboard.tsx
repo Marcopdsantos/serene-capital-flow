@@ -8,6 +8,7 @@ import { FluxoCaixaTab } from "@/components/FluxoCaixaTab";
 import { ComprovantesTab } from "@/components/ComprovantesTab";
 import { AcordosDetalhadosTab } from "@/components/AcordosDetalhadosTab";
 import { ComprovanteModal } from "@/components/ComprovanteModal";
+import { FilaAquisicoesTab } from "@/components/FilaAquisicoesTab";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -243,106 +244,8 @@ const Dashboard = () => {
               )}
             </Card>
 
-            {/* Tabela de Acordos */}
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-lg font-sans font-bold">Acordos Recentes</CardTitle>
-                <CardDescription>Últimas operações realizadas na plataforma</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-semibold">Cliente & Acordo</TableHead>
-                      <TableHead className="font-semibold">📆 Mês de Referência</TableHead>
-                      <TableHead className="font-semibold text-right">Valor</TableHead>
-                      <TableHead className="font-semibold text-center">📎 Comprovante</TableHead>
-                      <TableHead className="font-semibold">🗒️ Observações</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {acordosFiltrados.map((acordo) => (
-                      <TableRow key={acordo.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{acordo.cliente}</p>
-                            <p className="text-sm text-muted-foreground">{acordo.numero} • {acordo.criado}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="font-normal">
-                            {acordo.mes}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold numeric-value">{acordo.valor}</TableCell>
-                        <TableCell className="text-center">
-                          {getComprovanteStatus(acordo.comprovante)}
-                        </TableCell>
-                        <TableCell className="min-w-[200px] max-w-[300px]">
-                          {editandoObs === acordo.id ? (
-                            <Input
-                              defaultValue={observacoes[acordo.id] || ""}
-                              autoFocus
-                              onBlur={(e) => {
-                                salvarObservacao(acordo.id, e.target.value);
-                                setTimeout(() => {
-                                  toast({
-                                    description: `✓ Salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático`,
-                                    duration: 2000,
-                                    className: "animate-fade-in"
-                                  });
-                                }, 300);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  salvarObservacao(acordo.id, e.currentTarget.value);
-                                  setTimeout(() => {
-                                    toast({
-                                      description: `✓ Salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático`,
-                                      duration: 2000,
-                                      className: "animate-fade-in"
-                                    });
-                                  }, 300);
-                                }
-                              }}
-                              placeholder="Ex: Pix até dia 25, desconto 2k, saldo a compensar."
-                              className="h-8 text-xs"
-                            />
-                          ) : (
-                            <div 
-                              className="flex items-center gap-2 cursor-pointer group"
-                              onClick={() => setEditandoObs(acordo.id)}
-                            >
-                              <p className="text-sm text-muted-foreground flex-1">
-                                {observacoes[acordo.id] || "Use notas rápidas para lembrar ajustes e pendências"}
-                              </p>
-                              <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                          )}
-                          {observacoes[acordo.id] && editandoObs !== acordo.id && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Editado às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — automático
-                            </p>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={
-                              acordo.status === "ativo"
-                                ? "bg-success text-success-foreground"
-                                : "bg-pending text-pending-foreground"
-                            }
-                          >
-                            {acordo.status === "ativo" ? "Ativo" : "Aguardando Assinatura"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {/* Fila de Aquisições do Mês */}
+            <FilaAquisicoesTab />
           </TabsContent>
 
           {/* Aba Acordos Detalhados */}
