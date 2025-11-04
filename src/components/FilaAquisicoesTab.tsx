@@ -111,8 +111,11 @@ const aquisicoesData: Aquisicao[] = [
   },
 ];
 
-export const FilaAquisicoesTab = () => {
-  const [mesSelecionado, setMesSelecionado] = useState("2024-10");
+interface FilaAquisicoesTabProps {
+  mesSelecionado: string;
+}
+
+export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) => {
   const [filtroStatus, setFiltroStatus] = useState<StatusType | "todos">("todos");
   const [notas, setNotas] = useState<Record<string, string>>(
     aquisicoesData.reduce((acc, aq) => ({ ...acc, [aq.id]: aq.notas }), {})
@@ -177,24 +180,11 @@ export const FilaAquisicoesTab = () => {
   return (
     <Card className="animate-fade-in">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-sans font-bold">🗂️ Fila de Aquisições do Mês</CardTitle>
-            <CardDescription>
-              Gerencie todas as aquisições iniciadas no mês selecionado — substitui a planilha manual
-            </CardDescription>
-          </div>
-          <Select value={mesSelecionado} onValueChange={setMesSelecionado}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2024-09">Setembro 2024</SelectItem>
-              <SelectItem value="2024-10">Outubro 2024</SelectItem>
-              <SelectItem value="2024-11">Novembro 2024</SelectItem>
-              <SelectItem value="2024-12">Dezembro 2024</SelectItem>
-            </SelectContent>
-          </Select>
+        <div>
+          <CardTitle className="text-lg font-sans font-bold">🗂️ Fila de Aquisições do Mês</CardTitle>
+          <CardDescription>
+            Gerencie todas as aquisições iniciadas no mês selecionado — substitui a planilha manual
+          </CardDescription>
         </div>
       </CardHeader>
 
