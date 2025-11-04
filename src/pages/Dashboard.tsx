@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, FileText, TrendingUp, Clock, Wallet, Users, FileCheck } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Clock, Wallet, Users, FileCheck, CalendarDays, DollarSign, CreditCard } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NovaAquisicaoDialog } from "@/components/NovaAquisicaoDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -130,11 +130,14 @@ const Dashboard = () => {
             <Card className="animate-fade-in">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-sans font-bold">📊 Relatório Mensal</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Selecione o mês para visualizar KPIs e fila de aquisições
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <CalendarDays className="h-5 w-5 text-primary" strokeWidth={2} />
+                    <div>
+                      <h3 className="text-lg font-sans font-bold">Relatório Mensal</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Selecione o mês para visualizar KPIs e fila de aquisições
+                      </p>
+                    </div>
                   </div>
                   <Select value={mesSelecionado} onValueChange={setMesSelecionado}>
                     <SelectTrigger className="w-[200px]">
@@ -153,88 +156,74 @@ const Dashboard = () => {
 
             {/* Linha 1: KPIs Principais */}
             <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
-              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border-slate-200 dark:border-slate-700">
+              <Card className="hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer border-slate-200 dark:border-slate-700">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <CardDescription className="text-slate-600 dark:text-slate-400">Total em Caixa Atual</CardDescription>
-                    <div className="h-px flex-1 mx-3 bg-slate-300 dark:bg-slate-600" />
-                    <Wallet className="h-5 w-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
-                  </div>
-                  <CardTitle className="text-3xl font-sans numeric-value text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
-                    R$ 1.245.000
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                    Total em Caixa Atual
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Saldo disponível (Global)</p>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">R$ 1.245.000</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Saldo global disponível</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border-slate-200 dark:border-slate-700">
+              <Card className="hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer border-slate-200 dark:border-slate-700">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <CardDescription className="text-slate-600 dark:text-slate-400">Acordos do Mês</CardDescription>
-                    <div className="h-px flex-1 mx-3 bg-slate-300 dark:bg-slate-600" />
-                    <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
-                  </div>
-                  <CardTitle className="text-3xl font-sans numeric-value text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
-                    R$ {acordosDoMes.toLocaleString('pt-BR')}
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-blue-500" strokeWidth={2} />
+                    Acordos do Mês
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{getMesLabel(mesSelecionado)}</p>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">R$ {acordosDoMes.toLocaleString('pt-BR')}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Aportes iniciados em {getMesLabel(mesSelecionado)}</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border-slate-200 dark:border-slate-700">
+              <Card className="hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer border-slate-200 dark:border-slate-700">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <CardDescription className="text-slate-600 dark:text-slate-400">Pagamentos Pendentes</CardDescription>
-                    <div className="h-px flex-1 mx-3 bg-slate-300 dark:bg-slate-600" />
-                    <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
-                  </div>
-                  <CardTitle className="text-3xl font-sans numeric-value text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
-                    R$ {pagamentosPendentes.toLocaleString('pt-BR')}
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-500" strokeWidth={2} />
+                    Pagamentos Pendentes
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Não conciliados ainda</p>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">R$ {pagamentosPendentes.toLocaleString('pt-BR')}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Não conciliados ainda</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Linha 2: Origem dos Pagamentos */}
-            <Card className="animate-fade-in hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100/30 dark:from-blue-950/20 dark:to-blue-900/10 border-blue-200 dark:border-blue-800">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
-                  <CardTitle className="text-lg font-sans text-slate-900 dark:text-slate-100">Origem dos Pagamentos ({getMesLabel(mesSelecionado)})</CardTitle>
-                </div>
-                <CardDescription className="text-slate-600 dark:text-slate-400">Detalhamento da origem dos recursos conciliados no mês</CardDescription>
+            <Card className="animate-fade-in hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer border-slate-200 dark:border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" strokeWidth={2} />
+                  Origem dos Pagamentos ({getMesLabel(mesSelecionado)})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Mini-card: Pagamento Líquido */}
-                  <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Pagamento Líquido</p>
-                      <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" strokeWidth={2} />
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CreditCard className="h-4 w-4 text-blue-600 dark:text-blue-400" strokeWidth={2} />
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Pagamento Líquido</span>
                     </div>
-                    <p className="text-2xl font-sans numeric-value text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
-                      R$ {pagamentoLiquido.toLocaleString('pt-BR')}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">PIX/Cheque conciliados</p>
+                    <div className="text-xl font-bold text-slate-900 dark:text-slate-100">R$ {pagamentoLiquido.toLocaleString('pt-BR')}</div>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">PIX, Cheque, Transferência</p>
                   </div>
 
                   {/* Mini-card: Compensação de Créditos */}
-                  <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Compensação de Créditos</p>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-2">
                       <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" strokeWidth={2} />
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Compensação de Créditos</span>
                     </div>
-                    <p className="text-2xl font-sans numeric-value text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
-                      R$ {compensacaoCreditos.toLocaleString('pt-BR')}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Saldo Interno conciliado</p>
+                    <div className="text-xl font-bold text-slate-900 dark:text-slate-100">R$ {compensacaoCreditos.toLocaleString('pt-BR')}</div>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Saldo Interno utilizado</p>
                   </div>
                 </div>
               </CardContent>

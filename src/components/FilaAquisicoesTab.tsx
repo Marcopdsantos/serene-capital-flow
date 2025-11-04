@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2 } from "lucide-react";
+import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { FichaCadastralModal } from "./FichaCadastralModal";
 
@@ -35,14 +35,14 @@ const statusConfig = {
   },
   aguardando_comprovante: {
     label: "Aguardando Comprovante",
-    color: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border-blue-300 dark:border-blue-700",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
     icon: Paperclip,
     acao: "Anexar Comprovante",
     acaoIcon: Paperclip,
   },
   pendente_conciliacao: {
     label: "Pendente Conciliação",
-    color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 border-blue-500 dark:border-blue-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
     icon: Clock,
     acao: "Conciliar Pagamento",
     acaoAlternativa: "Conciliar Saldo Interno",
@@ -50,7 +50,7 @@ const statusConfig = {
   },
   ativo: {
     label: "Ativo",
-    color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-300 dark:border-slate-600",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600",
     icon: CheckCircle,
     acao: "Ver Detalhes",
     acaoIcon: Eye,
@@ -174,13 +174,25 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
     open: boolean;
     cliente: typeof clientesData[keyof typeof clientesData] | null;
   }>({ open: false, cliente: null });
+  const [ordenacaoComprador, setOrdenacaoComprador] = useState<"asc" | "desc" | null>(null);
 
   // Filtra aquisições por mês
   const aquisicoesPorMes = aquisicoesData.filter((aq) => aq.mesReferencia === mesSelecionado);
 
   // Filtra aquisições por status
-  const aquisicoesFiltradas =
+  let aquisicoesFiltradas =
     filtroStatus === "todos" ? aquisicoesPorMes : aquisicoesPorMes.filter((aq) => aq.status === filtroStatus);
+
+  // Aplica ordenação por comprador se ativa
+  if (ordenacaoComprador) {
+    aquisicoesFiltradas = [...aquisicoesFiltradas].sort((a, b) => {
+      if (ordenacaoComprador === "asc") {
+        return a.comprador.localeCompare(b.comprador);
+      } else {
+        return b.comprador.localeCompare(a.comprador);
+      }
+    });
+  }
 
   const contadores = {
     todos: aquisicoesPorMes.length,
@@ -230,6 +242,21 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
     return `${meses[parseInt(mes) - 1]} ${ano}`;
   };
 
+  const formatarData = (dataISO: string) => {
+    const [ano, mes, dia] = dataISO.split("-");
+    return `${dia}/${mes}/${ano}`;
+  };
+
+  const toggleOrdenacaoComprador = () => {
+    if (ordenacaoComprador === null) {
+      setOrdenacaoComprador("asc");
+    } else if (ordenacaoComprador === "asc") {
+      setOrdenacaoComprador("desc");
+    } else {
+      setOrdenacaoComprador(null);
+    }
+  };
+
   return (
     <>
       <Card className="animate-fade-in">
@@ -251,31 +278,31 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
             <TabsList className="grid grid-cols-5 w-full bg-slate-100 dark:bg-slate-800">
               <TabsTrigger 
                 value="todos" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Todos ({contadores.todos})
               </TabsTrigger>
               <TabsTrigger 
                 value="aguardando_assinatura" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Assinatura ({contadores.aguardando_assinatura})
               </TabsTrigger>
               <TabsTrigger 
                 value="aguardando_comprovante" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Comprovante ({contadores.aguardando_comprovante})
               </TabsTrigger>
               <TabsTrigger 
                 value="pendente_conciliacao" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Conciliação ({contadores.pendente_conciliacao})
               </TabsTrigger>
               <TabsTrigger 
                 value="ativo" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Ativos ({contadores.ativo})
               </TabsTrigger>
@@ -287,7 +314,15 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Comprador</TableHead>
+                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                    <button 
+                      onClick={toggleOrdenacaoComprador}
+                      className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                    >
+                      Comprador
+                      <ArrowUpDown className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                  </TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Aporte</TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Total a Receber</TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Detalhes do Pagamento</TableHead>
@@ -317,15 +352,12 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                     return (
                       <TableRow key={aquisicao.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                         <TableCell>
-                          <div>
-                            <button
-                              onClick={() => setModalCliente({ open: true, cliente: clientesData[aquisicao.comprador as keyof typeof clientesData] })}
-                              className="font-medium text-blue-600 dark:text-blue-400 hover:underline text-left"
-                            >
-                              {aquisicao.comprador}
-                            </button>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Início: {aquisicao.dataInicio}</p>
-                          </div>
+                          <button
+                            onClick={() => setModalCliente({ open: true, cliente: clientesData[aquisicao.comprador as keyof typeof clientesData] })}
+                            className="font-medium text-blue-600 dark:text-blue-400 hover:underline text-left"
+                          >
+                            {aquisicao.comprador} <span className="text-xs text-slate-500 dark:text-slate-400">({formatarData(aquisicao.dataInicio)})</span>
+                          </button>
                         </TableCell>
                         <TableCell className="font-semibold text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
                           {aquisicao.aporte}
@@ -337,7 +369,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                           <p className="text-sm text-slate-600 dark:text-slate-400">{aquisicao.detalhePagamento}</p>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge className={`${config.color} border font-normal px-3 py-1 min-w-[180px] justify-center`}>
+                          <Badge className={`${config.color} border font-normal px-3 py-1 min-w-[200px] justify-center`}>
                             <StatusIcon className="h-4 w-4 mr-2" strokeWidth={2} />
                             {config.label}
                           </Badge>
@@ -383,7 +415,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             size="sm"
                             variant={aquisicao.status === "ativo" ? "outline" : "default"}
                             onClick={() => handleAcao(aquisicao)}
-                            className={`whitespace-nowrap ${
+                            className={`whitespace-nowrap h-9 px-4 ${
                               aquisicao.status === "ativo" 
                                 ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" 
                                 : "bg-blue-600 hover:bg-blue-700 text-white"
