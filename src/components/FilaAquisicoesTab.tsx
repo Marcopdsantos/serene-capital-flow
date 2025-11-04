@@ -359,10 +359,10 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             {aquisicao.comprador} <span className="text-xs text-slate-500 dark:text-slate-400">({formatarData(aquisicao.dataInicio)})</span>
                           </button>
                         </TableCell>
-                        <TableCell className="font-semibold text-slate-900 dark:text-slate-100" style={{ fontWeight: 500 }}>
+                        <TableCell className="font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap min-w-[120px]" style={{ fontWeight: 500 }}>
                           {aquisicao.aporte}
                         </TableCell>
-                        <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                        <TableCell className="font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[140px]">
                           {aquisicao.totalReceber}
                         </TableCell>
                         <TableCell>
@@ -415,7 +415,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             size="sm"
                             variant={aquisicao.status === "ativo" ? "outline" : "default"}
                             onClick={() => handleAcao(aquisicao)}
-                            className={`whitespace-nowrap h-9 px-4 ${
+                            className={`whitespace-nowrap h-9 px-4 w-[200px] ${
                               aquisicao.status === "ativo" 
                                 ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent" 
                                 : ""
