@@ -1,9 +1,15 @@
-import { TrendingUp, Clock, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { TrendingUp, Clock, CheckCircle2, Home, Briefcase, Receipt, UserCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 
 const ClientPortal = () => {
+  const [activeTab, setActiveTab] = useState("inicio");
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -22,19 +28,41 @@ const ClientPortal = () => {
         </div>
       </header>
 
-      <div className="max-w-editorial mx-auto px-8 py-12 space-y-12">
-        {/* Welcome Message */}
-        <div className="animate-fade-in">
-          <h1 className="text-5xl font-sans font-bold mb-4 leading-tight">
-            Bem-vindo de volta
-          </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-            Seus investimentos seguem firmes. Transparência em cada detalhe.
-          </p>
-        </div>
+      <div className="max-w-editorial mx-auto px-8 py-12 space-y-8">
+        {/* Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+            <TabsTrigger value="inicio" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Início
+            </TabsTrigger>
+            <TabsTrigger value="acordos" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Meus Acordos
+            </TabsTrigger>
+            <TabsTrigger value="extrato" className="flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Meu Extrato
+            </TabsTrigger>
+            <TabsTrigger value="perfil" className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4" />
+              Meu Perfil
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Balance and Next Payment Cards */}
-        <div className="grid md:grid-cols-2 gap-6 animate-slide-up">
+          {/* TAB: Início (Dashboard) */}
+          <TabsContent value="inicio" className="space-y-12">
+            <div className="animate-fade-in">
+              <h1 className="text-5xl font-sans font-bold mb-4 leading-tight">
+                Bem-vindo de volta
+              </h1>
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+                Seus investimentos seguem firmes. Transparência em cada detalhe.
+              </p>
+            </div>
+
+            {/* Balance and Next Payment Cards */}
+            <div className="grid md:grid-cols-2 gap-6 animate-slide-up">
           <Card className="shadow-editorial border-2">
             <CardHeader className="pb-8">
               <CardDescription className="text-base">Saldo Disponível</CardDescription>
@@ -70,129 +98,162 @@ const ClientPortal = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+            </div>
+          </TabsContent>
 
-        {/* Agreements Section */}
-        <section className="space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <div>
-            <h2 className="text-4xl font-sans font-bold mb-2">Meus Acordos</h2>
-            <p className="text-muted-foreground text-lg">
-              Seus acordos estão em dia e rendendo conforme o cronograma.
-            </p>
-          </div>
+          {/* TAB: Meus Acordos */}
+          <TabsContent value="acordos" className="space-y-6">
+            <div>
+              <h2 className="text-4xl font-sans font-bold mb-2">Meus Acordos</h2>
+              <p className="text-muted-foreground text-lg">
+                Visualize todos os seus investimentos ativos e o progresso de cada um.
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="shadow-editorial hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardDescription>Acordo #1001</CardDescription>
-                    <CardTitle className="text-3xl font-sans mt-2" style={{ fontWeight: 500 }}>R$ 50.000,00</CardTitle>
-                  </div>
-                  <span className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-success/20 text-success-foreground font-medium">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Ativo
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Parcelas</p>
-                    <p className="font-semibold">10 parcelas</p>
-                  </div>
-                </div>
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">Próximo crédito</p>
-                  <p className="font-medium" style={{ fontWeight: 500 }}>Amanhã, 05h00 — R$ 900,00</p>
+            <Card className="shadow-editorial">
+              <CardContent className="pt-6">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b border-border">
+                      <tr>
+                        <th className="text-left py-3 px-4 text-sm font-medium">ID do Acordo</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Data do Aporte</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Valor do Aporte</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Progresso</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Valor da Parcela</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { id: "#1001", data: "15/09/2024", aporte: 50000, progresso: 5, total: 10, parcela: 6500 },
+                        { id: "#1002", data: "10/10/2024", aporte: 75000, progresso: 3, total: 10, parcela: 9750 },
+                        { id: "#1003", data: "25/10/2024", aporte: 30000, progresso: 1, total: 10, parcela: 3900 },
+                      ].map((acordo) => (
+                        <tr key={acordo.id} className="border-b border-border hover:bg-muted/30">
+                          <td className="py-4 px-4 font-medium">{acordo.id}</td>
+                          <td className="py-4 px-4 text-sm">{acordo.data}</td>
+                          <td className="py-4 px-4 font-semibold">
+                            R$ {acordo.aporte.toLocaleString("pt-BR")}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Progress value={(acordo.progresso / acordo.total) * 100} className="h-2 flex-1" />
+                                <Badge variant="neutral" className="text-xs">
+                                  {acordo.progresso}/{acordo.total}
+                                </Badge>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 font-semibold">
+                            R$ {acordo.parcela.toLocaleString("pt-BR")}
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge variant="default" className="bg-success text-success-foreground">
+                              Ativo
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            <Card className="shadow-editorial hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardDescription>Acordo #1002</CardDescription>
-                    <CardTitle className="text-3xl font-sans mt-2" style={{ fontWeight: 500 }}>R$ 75.000,00</CardTitle>
-                  </div>
-                  <span className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-success/20 text-success-foreground font-medium">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Ativo
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Parcelas</p>
-                    <p className="font-semibold">10 parcelas</p>
-                  </div>
-                </div>
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">Próximo crédito</p>
-                  <p className="font-medium" style={{ fontWeight: 500 }}>Amanhã, 05h00 — R$ 1.500,00</p>
+          {/* TAB: Meu Extrato */}
+          <TabsContent value="extrato" className="space-y-6">
+            <div>
+              <h2 className="text-4xl font-sans font-bold mb-2">Meu Extrato</h2>
+              <p className="text-muted-foreground text-lg">
+                Histórico completo de todas as movimentações da sua Conta Corrente.
+              </p>
+            </div>
+
+            <Card className="shadow-editorial">
+              <CardContent className="pt-6">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b border-border">
+                      <tr>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Data</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Descrição</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium">Valor</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium">Saldo Resultante</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { tipo: "credito", desc: "Crédito da parcela 5/10 (Acordo #1001)", valor: 6500, data: "28/11/2024 - 05h00", saldoAnterior: 120950 },
+                        { tipo: "credito", desc: "Crédito da parcela 3/10 (Acordo #1002)", valor: 9750, data: "28/11/2024 - 05h00", saldoAnterior: 111200 },
+                        { tipo: "debito", desc: "Débito para aporte no Acordo #1004", valor: -30000, data: "25/11/2024 - 14h30", saldoAnterior: 141200 },
+                        { tipo: "debito", desc: "Saque solicitado via PIX", valor: -10000, data: "20/11/2024 - 10h15", saldoAnterior: 151200 },
+                        { tipo: "credito", desc: "Crédito da parcela 4/10 (Acordo #1001)", valor: 6500, data: "28/10/2024 - 05h00", saldoAnterior: 144700 },
+                      ].map((tx, i) => {
+                        const saldoResultante = tx.saldoAnterior + tx.valor;
+                        return (
+                          <tr key={i} className="border-b border-border hover:bg-muted/30">
+                            <td className="py-4 px-4 text-sm">{tx.data}</td>
+                            <td className="py-4 px-4">{tx.desc}</td>
+                            <td className={`py-4 px-4 text-right font-semibold ${
+                              tx.tipo === "credito" ? "text-green-600" : "text-red-600"
+                            }`}>
+                              {tx.tipo === "credito" ? "+" : "-"} R$ {Math.abs(tx.valor).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="py-4 px-4 text-right font-semibold">
+                              R$ {saldoResultante.toLocaleString("pt-BR")}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </section>
+          </TabsContent>
 
-        {/* Transaction History */}
-        <section className="space-y-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <div>
-            <h2 className="text-4xl font-sans font-bold mb-2">Extrato</h2>
-            <p className="text-muted-foreground text-lg">
-              Histórico completo de movimentações
-            </p>
-          </div>
+          {/* TAB: Meu Perfil */}
+          <TabsContent value="perfil" className="space-y-6">
+            <div>
+              <h2 className="text-4xl font-sans font-bold mb-2">Meu Perfil</h2>
+              <p className="text-muted-foreground text-lg">
+                Visualize seus dados cadastrais.
+              </p>
+            </div>
 
-          <Card className="shadow-editorial">
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                {[
-                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: 900, time: "Hoje, 05h00", saldoAnterior: 126550 },
-                  { type: "credit", desc: "Crédito automático — Acordo #1002", value: 1500, time: "Hoje, 05h00", saldoAnterior: 125050 },
-                  { type: "debit", desc: "Saque solicitado", value: -5000, time: "Ontem, 14h30", saldoAnterior: 130050 },
-                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: 900, time: "2 dias atrás", saldoAnterior: 129150 },
-                ].map((tx, i) => {
-                  const saldoResultante = tx.saldoAnterior + tx.value;
-                  return (
-                    <div key={i} className="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center py-4 border-b border-border last:border-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        tx.type === "credit" ? "bg-success/10" : "bg-muted"
-                      }`}>
-                        {tx.type === "credit" ? (
-                          <TrendingUp className="h-5 w-5 text-success" />
-                        ) : (
-                          <Clock className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium">{tx.desc}</p>
-                        <p className="text-sm text-muted-foreground">{tx.time}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground mb-1">Valor</p>
-                        <p className={`font-semibold text-lg ${
-                          tx.type === "credit" ? "text-success" : "text-foreground"
-                        }`} style={{ fontWeight: 500 }}>
-                          {tx.value > 0 ? '+' : ''}R$ {Math.abs(tx.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground mb-1">Saldo Resultante</p>
-                        <p className="font-semibold text-lg" style={{ fontWeight: 500 }}>
-                          R$ {saldoResultante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+            <Card className="shadow-editorial">
+              <CardHeader>
+                <CardTitle>Informações Cadastrais</CardTitle>
+                <CardDescription>
+                  Para atualizar seus dados, entre em contato com o gestor.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Nome Completo</p>
+                    <p className="font-semibold">João Silva</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">CPF</p>
+                    <p className="font-semibold">000.000.000-00</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">E-mail</p>
+                    <p className="font-semibold">joao.silva@email.com</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Telefone</p>
+                    <p className="font-semibold">(11) 99999-9999</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Footer */}

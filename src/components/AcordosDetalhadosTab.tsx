@@ -3,7 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingUp, Building2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, TrendingUp, Building2, Eye } from "lucide-react";
+import { AcordoDetalhesModal } from "./AcordoDetalhesModal";
 
 interface AcordoDetalhado {
   id: string;
@@ -68,6 +70,9 @@ const mockAcordos: AcordoDetalhado[] = [
 export const AcordosDetalhadosTab = () => {
   const [acordos] = useState<AcordoDetalhado[]>(mockAcordos);
   const [busca, setBusca] = useState("");
+  const [filtroMes, setFiltroMes] = useState<string>("todos");
+  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [modalAcordo, setModalAcordo] = useState<{ id: string; numeroAcordo: string; cliente: string; valorTotal: number } | null>(null);
 
   const totalPixCheque = acordos
     .filter(a => a.origemPagamento === "PIX/Cheque")
@@ -77,10 +82,15 @@ export const AcordosDetalhadosTab = () => {
     .filter(a => a.origemPagamento === "Saldo Interno")
     .reduce((sum, a) => sum + parseFloat(a.valorTotal.replace(/[^\d,]/g, "").replace(",", ".")), 0);
 
-  const acordosFiltrados = acordos.filter(acordo =>
-    acordo.cliente.toLowerCase().includes(busca.toLowerCase()) ||
-    acordo.acordo.toLowerCase().includes(busca.toLowerCase())
-  );
+  const acordosFiltrados = acordos.filter(acordo => {
+    const matchBusca = acordo.cliente.toLowerCase().includes(busca.toLowerCase()) ||
+      acordo.acordo.toLowerCase().includes(busca.toLowerCase());
+    
+    const matchMes = filtroMes === "todos" || acordo.mesRef === filtroMes;
+    const matchStatus = filtroStatus === "todos" || acordo.status.toLowerCase() === filtroStatus.toLowerCase();
+    
+    return matchBusca && matchMes && matchStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -111,15 +121,41 @@ export const AcordosDetalhadosTab = () => {
         </Card>
       </div>
 
-      {/* Busca */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por cliente ou acordo..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="pl-10"
-        />
+      {/* Busca e Filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="relative md:col-span-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por cliente ou acordo..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <Select value={filtroMes} onValueChange={setFiltroMes}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por Mês" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os Meses</SelectItem>
+            <SelectItem value="Outubro/24">Outubro/24</SelectItem>
+            <SelectItem value="Setembro/24">Setembro/24</SelectItem>
+            <SelectItem value="Agosto/24">Agosto/24</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os Status</SelectItem>
+            <SelectItem value="em dia">Em dia</SelectItem>
+            <SelectItem value="pendente">Pendente</SelectItem>
+            <SelectItem value="atrasado">Atrasado</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <p className="text-sm text-muted-foreground">
@@ -142,6 +178,7 @@ export const AcordosDetalhadosTab = () => {
                 <th className="text-left py-4 px-4 text-sm font-sans font-medium">Próxima Parcela</th>
                 <th className="text-left py-4 px-4 text-sm font-sans font-medium">Status</th>
                 <th className="text-left py-4 px-4 text-sm font-sans font-medium">Observações</th>
+                <th className="text-left py-4 px-4 text-sm font-sans font-medium">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -186,6 +223,21 @@ export const AcordosDetalhadosTab = () => {
                       {acordo.observacoes}
                     </p>
                   </td>
+                  <td className="py-4 px-4">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setModalAcordo({
+                        id: acordo.id,
+                        numeroAcordo: acordo.acordo,
+                        cliente: acordo.cliente,
+                        valorTotal: parseFloat(acordo.valorTotal.replace(/[^\d,]/g, "").replace(",", "."))
+                      })}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Ver Detalhes
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -198,6 +250,12 @@ export const AcordosDetalhadosTab = () => {
           </div>
         )}
       </Card>
+
+      <AcordoDetalhesModal
+        open={!!modalAcordo}
+        onOpenChange={(open) => !open && setModalAcordo(null)}
+        acordo={modalAcordo}
+      />
     </div>
   );
 };

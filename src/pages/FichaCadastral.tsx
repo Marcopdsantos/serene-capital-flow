@@ -185,6 +185,39 @@ export default function FichaCadastral() {
         </Card>
       )}
 
+      {/* Módulo de Contabilidade Bilateral */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <CardTitle>Módulo de Contabilidade Bilateral</CardTitle>
+          <CardDescription>
+            Registre e visualize observações sobre dívidas, pendências e acordos bilaterais
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Observações Financeiras</Label>
+            <Textarea
+              placeholder="Ex: Cliente nos deve R$ 10.000 referente ao acordo #1005..."
+              rows={4}
+              defaultValue={clienteMock.observacoes}
+            />
+          </div>
+          <Button>Salvar Observação</Button>
+          
+          <Separator className="my-4" />
+          
+          <div>
+            <h4 className="font-semibold mb-2">Histórico de Observações</h4>
+            <div className="space-y-2">
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-sm">{clienteMock.observacoes}</p>
+                <p className="text-xs text-muted-foreground mt-1">Registrado em: 15/11/2024 às 14h30</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Módulo de Acerto Rápido */}
       <Card>
         <CardHeader>
@@ -242,7 +275,7 @@ export default function FichaCadastral() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="acordos-beneficiario">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="acordos-beneficiario">
                 <FileText className="h-4 w-4 mr-2" />
                 Acordos como Beneficiário
@@ -250,6 +283,10 @@ export default function FichaCadastral() {
               <TabsTrigger value="acordos-signatario">
                 <User className="h-4 w-4 mr-2" />
                 Acordos como Signatário
+              </TabsTrigger>
+              <TabsTrigger value="comissoes">
+                <DollarSign className="h-4 w-4 mr-2" />
+                Comissões (Agente)
               </TabsTrigger>
             </TabsList>
 
@@ -333,6 +370,68 @@ export default function FichaCadastral() {
                   </TableBody>
                 </Table>
               </div>
+            </TabsContent>
+
+            <TabsContent value="comissoes" className="mt-6">
+              {clienteMock.tipo === "agente" ? (
+                <>
+                  <Card className="mb-4 border-2">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardDescription>Total em Comissões Recebidas</CardDescription>
+                        <DollarSign className="h-5 w-5 text-success" />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-success">
+                        R$ 12.500,00
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <div className="border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Data</TableHead>
+                          <TableHead>Cliente (Beneficiário)</TableHead>
+                          <TableHead>ID Aquisição</TableHead>
+                          <TableHead>Valor Comissão</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[
+                          { data: "15/11/2024", cliente: "Maria Costa", aquisicaoId: "#ACQ-1050", comissao: 2500, status: "paga" },
+                          { data: "10/11/2024", cliente: "Pedro Santos", aquisicaoId: "#ACQ-1048", comissao: 5000, status: "paga" },
+                          { data: "05/11/2024", cliente: "Ana Silva", aquisicaoId: "#ACQ-1042", comissao: 5000, status: "paga" },
+                        ].map((comissao, i) => (
+                          <TableRow key={i}>
+                            <TableCell>{comissao.data}</TableCell>
+                            <TableCell className="font-medium">{comissao.cliente}</TableCell>
+                            <TableCell>{comissao.aquisicaoId}</TableCell>
+                            <TableCell className="font-semibold text-success">
+                              R$ {comissao.comissao.toLocaleString("pt-BR")}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="default" className="bg-success text-success-foreground">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Paga
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">
+                    Este cliente não é um Agente Comissionado.
+                  </p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
