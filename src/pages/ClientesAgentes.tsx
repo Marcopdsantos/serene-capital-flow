@@ -81,7 +81,7 @@ export default function ClientesAgentes() {
               {clientesFiltrados.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.nome}</TableCell>
-                  <TableCell><Badge>{c.tipo === "investidor" ? "Investidor" : "Agente"}</Badge></TableCell>
+                  <TableCell><Badge variant="neutral">{c.tipo === "investidor" ? "Investidor" : "Agente"}</Badge></TableCell>
                   <TableCell>{c.numAcordos}</TableCell>
                   <TableCell className="font-semibold">R$ {c.saldoConta.toLocaleString("pt-BR")}</TableCell>
                   <TableCell><Button size="sm" onClick={() => navigate(`/dashboard/cadastros/clientes/${c.id}`)}>Ver Ficha</Button></TableCell>

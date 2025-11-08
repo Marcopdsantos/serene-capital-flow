@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -129,16 +130,17 @@ export const ComprovantesTab = () => {
           />
         </div>
         
-        <select
-          value={filtroStatus}
-          onChange={(e) => setFiltroStatus(e.target.value)}
-          className="px-4 py-2 rounded-md border border-border bg-background text-sm"
-        >
-          <option value="todos">Todos os status</option>
-          <option value="pendente">🟡 Pendente</option>
-          <option value="aprovado">🟢 Conciliado</option>
-          <option value="aguardando">🔵 Anexado</option>
-        </select>
+        <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Todos os status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            <SelectItem value="pendente">🟡 Pendente</SelectItem>
+            <SelectItem value="aprovado">🟢 Conciliado</SelectItem>
+            <SelectItem value="aguardando">🔵 Anexado</SelectItem>
+          </SelectContent>
+        </Select>
 
         <Button
           variant={mostrarApenasPendentes ? "default" : "outline"}
@@ -193,18 +195,12 @@ export const ComprovantesTab = () => {
                       <p className="text-sm text-muted-foreground numeric-value">{comp.valorEsperado}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge variant={Math.abs(diferenca) < 1 ? "default" : "destructive"}>
+                      <Badge variant="neutral">
                         {diferenca > 0 ? '+' : ''}{diferencaFormatada}%
                       </Badge>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge
-                        variant={
-                          comp.status === "aprovado" ? "default" :
-                          comp.status === "pendente" ? "secondary" :
-                          comp.status === "aguardando" ? "outline" : "destructive"
-                        }
-                      >
+                      <Badge variant="neutral">
                         {comp.status === "aprovado" && "🟢 Conciliado"}
                         {comp.status === "pendente" && "🟡 Pendente"}
                         {comp.status === "aguardando" && "🔵 Anexado"}

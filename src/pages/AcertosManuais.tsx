@@ -182,12 +182,12 @@ export default function AcertosManuais() {
                 <TableRow key={a.id}>
                   <TableCell>{format(a.dataLancamento, "dd/MM/yyyy HH:mm")}</TableCell>
                   <TableCell>{a.cliente}</TableCell>
-                  <TableCell><Badge variant={a.tipo === "credito" ? "default" : "destructive"}>{a.tipo === "credito" ? "Crédito" : "Débito"}</Badge></TableCell>
+                  <TableCell><Badge variant="neutral">{a.tipo === "credito" ? "Crédito" : "Débito"}</Badge></TableCell>
                   <TableCell className={a.tipo === "credito" ? "text-green-600" : "text-red-600"}>
                     {a.tipo === "credito" ? "+" : "-"}R$ {a.valor.toLocaleString("pt-BR")}
                   </TableCell>
                   <TableCell className="truncate max-w-xs">{a.justificativa}</TableCell>
-                  <TableCell><Badge>{a.status === "conciliado" ? "Conciliado" : "Pendente"}</Badge></TableCell>
+                  <TableCell><Badge variant="neutral">{a.status === "conciliado" ? "Conciliado" : "Pendente"}</Badge></TableCell>
                 </TableRow>
               ))}
             </TableBody>

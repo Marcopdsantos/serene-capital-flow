@@ -160,7 +160,7 @@ export const AcordosDetalhadosTab = () => {
                     <p className="font-semibold numeric-value">{acordo.valorTotal}</p>
                   </td>
                   <td className="py-4 px-4">
-                    <Badge variant={acordo.origemPagamento === "PIX/Cheque" ? "default" : "secondary"}>
+                    <Badge variant="neutral">
                       {acordo.origemPagamento}
                     </Badge>
                   </td>
@@ -177,12 +177,7 @@ export const AcordosDetalhadosTab = () => {
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <Badge
-                      variant={
-                        acordo.status === "Em dia" ? "default" :
-                        acordo.status === "Pendente" ? "secondary" : "destructive"
-                      }
-                    >
+                    <Badge variant="neutral">
                       {acordo.status}
                     </Badge>
                   </td>

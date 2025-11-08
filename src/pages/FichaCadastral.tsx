@@ -275,13 +275,13 @@ export default function FichaCadastral() {
                           R$ {acordo.valorAporte.toLocaleString("pt-BR")}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{acordo.progresso}</Badge>
+                          <Badge variant="neutral">{acordo.progresso}</Badge>
                         </TableCell>
                         <TableCell>
                           R$ {acordo.valorParcela.toLocaleString("pt-BR")}
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                          <Badge variant="neutral">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Ativo
                           </Badge>
@@ -322,7 +322,7 @@ export default function FichaCadastral() {
                             R$ {acordo.valorAporte.toLocaleString("pt-BR")}
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                            <Badge variant="neutral">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Ativo
                             </Badge>

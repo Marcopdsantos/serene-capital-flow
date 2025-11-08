@@ -371,7 +371,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                           <p className="text-sm text-slate-600 dark:text-slate-400">{aquisicao.detalhePagamento}</p>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${config.color} border font-normal px-3 py-1 min-w-[200px] inline-flex items-center whitespace-nowrap text-xs`}>
+                          <Badge variant="neutral" className="min-w-[200px] inline-flex items-center whitespace-nowrap text-xs">
                             <StatusIcon className="h-4 w-4 mr-2" strokeWidth={2} />
                             {config.label}
                           </Badge>

@@ -386,14 +386,7 @@ export default function CentralArquivos() {
                           {arquivo.tamanho}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={arquivo.status === "vinculado" ? "default" : "secondary"}
-                            className={
-                              arquivo.status === "vinculado"
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                                : ""
-                            }
-                          >
+                          <Badge variant="neutral">
                             {arquivo.status === "vinculado" ? "✓ Vinculado" : "Órfão"}
                           </Badge>
                         </TableCell>
