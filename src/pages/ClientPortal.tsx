@@ -1,5 +1,6 @@
 import { TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
 const ClientPortal = () => {
@@ -9,9 +10,14 @@ const ClientPortal = () => {
       <header className="border-b border-border bg-card">
         <div className="max-w-editorial mx-auto px-8 py-6 flex items-center justify-between">
           <img src={logo} alt="Acordo Capital" className="h-8" />
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Bem-vindo,</p>
-            <p className="font-semibold">João Silva</p>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => window.location.href = '/portal/perfil'}>
+              Meu Perfil
+            </Button>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Bem-vindo,</p>
+              <p className="font-semibold">João Silva</p>
+            </div>
           </div>
         </div>
       </header>
@@ -27,24 +33,44 @@ const ClientPortal = () => {
           </p>
         </div>
 
-        {/* Balance Card - Editorial Hero */}
-        <Card className="shadow-editorial animate-slide-up border-2">
-          <CardHeader className="pb-8">
-            <CardDescription className="text-base">Saldo Total Disponível</CardDescription>
-            <CardTitle className="text-7xl font-sans mt-4" style={{ fontWeight: 500 }}>
-              R$ 127.450,00
-            </CardTitle>
-            <p className="text-muted-foreground mt-4 text-lg">
-              Seu saldo foi atualizado automaticamente às 05h00 de hoje.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-success">
-              <TrendingUp className="h-5 w-5" />
-              <span className="font-medium numeric-value">+R$ 2.850,00 este mês</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Balance and Next Payment Cards */}
+        <div className="grid md:grid-cols-2 gap-6 animate-slide-up">
+          <Card className="shadow-editorial border-2">
+            <CardHeader className="pb-8">
+              <CardDescription className="text-base">Saldo Disponível</CardDescription>
+              <CardTitle className="text-7xl font-sans mt-4" style={{ fontWeight: 500 }}>
+                R$ 127.450,00
+              </CardTitle>
+              <p className="text-muted-foreground mt-4 text-lg">
+                Seu saldo foi atualizado automaticamente às 05h00 de hoje.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2 text-success">
+                <TrendingUp className="h-5 w-5" />
+                <span className="font-medium numeric-value">+R$ 2.850,00 este mês</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-editorial border-2">
+            <CardHeader className="pb-8">
+              <CardDescription className="text-base">Próximo Recebimento</CardDescription>
+              <CardTitle className="text-7xl font-sans mt-4" style={{ fontWeight: 500 }}>
+                R$ 2.400,00
+              </CardTitle>
+              <p className="text-muted-foreground mt-4 text-lg">
+                Crédito automático previsto para amanhã, 05h00.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="h-5 w-5" />
+                <span className="font-medium">2 acordos em processamento</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Agreements Section */}
         <section className="space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
@@ -125,13 +151,14 @@ const ClientPortal = () => {
             <CardContent className="pt-6">
               <div className="space-y-6">
                 {[
-                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: "+R$ 900,00", time: "Hoje, 05h00" },
-                  { type: "credit", desc: "Crédito automático — Acordo #1002", value: "+R$ 1.500,00", time: "Hoje, 05h00" },
-                  { type: "debit", desc: "Saque solicitado", value: "-R$ 5.000,00", time: "Ontem, 14h30" },
-                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: "+R$ 900,00", time: "2 dias atrás" },
-                ].map((tx, i) => (
-                  <div key={i} className="flex items-center justify-between py-4 border-b border-border last:border-0">
-                    <div className="flex items-center gap-4">
+                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: 900, time: "Hoje, 05h00", saldoAnterior: 126550 },
+                  { type: "credit", desc: "Crédito automático — Acordo #1002", value: 1500, time: "Hoje, 05h00", saldoAnterior: 125050 },
+                  { type: "debit", desc: "Saque solicitado", value: -5000, time: "Ontem, 14h30", saldoAnterior: 130050 },
+                  { type: "credit", desc: "Crédito automático — Acordo #1001", value: 900, time: "2 dias atrás", saldoAnterior: 129150 },
+                ].map((tx, i) => {
+                  const saldoResultante = tx.saldoAnterior + tx.value;
+                  return (
+                    <div key={i} className="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center py-4 border-b border-border last:border-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         tx.type === "credit" ? "bg-success/10" : "bg-muted"
                       }`}>
@@ -145,14 +172,23 @@ const ClientPortal = () => {
                         <p className="font-medium">{tx.desc}</p>
                         <p className="text-sm text-muted-foreground">{tx.time}</p>
                       </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground mb-1">Valor</p>
+                        <p className={`font-semibold text-lg ${
+                          tx.type === "credit" ? "text-success" : "text-foreground"
+                        }`} style={{ fontWeight: 500 }}>
+                          {tx.value > 0 ? '+' : ''}R$ {Math.abs(tx.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground mb-1">Saldo Resultante</p>
+                        <p className="font-semibold text-lg" style={{ fontWeight: 500 }}>
+                          R$ {saldoResultante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
                     </div>
-                    <p className={`font-semibold text-lg ${
-                      tx.type === "credit" ? "text-success" : "text-foreground"
-                    }`} style={{ fontWeight: 500 }}>
-                      {tx.value}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

@@ -14,6 +14,7 @@ import FichaCadastral from "./pages/FichaCadastral";
 import FluxoCaixaPage from "./pages/FluxoCaixaPage";
 import AcertosManuais from "./pages/AcertosManuais";
 import ClientPortal from "./pages/ClientPortal";
+import MeuPerfil from "./pages/MeuPerfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="financeiro/acertos" element={<AcertosManuais />} />
           </Route>
           <Route path="/portal" element={<ClientPortal />} />
+          <Route path="/portal/perfil" element={<MeuPerfil />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
