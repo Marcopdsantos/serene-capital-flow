@@ -5,7 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./pages/DashboardLayout";
+import PainelGeral from "./pages/PainelGeral";
+import CarteiraAcordos from "./pages/CarteiraAcordos";
+import CentralArquivos from "./pages/CentralArquivos";
+import ClientesAgentes from "./pages/ClientesAgentes";
+import FluxoCaixaPage from "./pages/FluxoCaixaPage";
+import AcertosManuais from "./pages/AcertosManuais";
 import ClientPortal from "./pages/ClientPortal";
 import NotFound from "./pages/NotFound";
 
@@ -20,7 +26,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<PainelGeral />} />
+            <Route path="operacoes/carteira" element={<CarteiraAcordos />} />
+            <Route path="operacoes/arquivos" element={<CentralArquivos />} />
+            <Route path="cadastros/clientes" element={<ClientesAgentes />} />
+            <Route path="financeiro/fluxo" element={<FluxoCaixaPage />} />
+            <Route path="financeiro/acertos" element={<AcertosManuais />} />
+          </Route>
           <Route path="/portal" element={<ClientPortal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
