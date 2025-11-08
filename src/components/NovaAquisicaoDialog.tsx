@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Search, ChevronRight, ChevronLeft, FileText, CheckCircle, CalendarIcon, User, Home, Briefcase, X } from "lucide-react";
+import { Plus, Search, ChevronRight, ChevronLeft, FileText, CheckCircle, CalendarIcon, User, Home, Briefcase, X, Building2, UserCheck } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DefinirSignatarioModal } from "@/components/DefinirSignatarioModal";
 import { currencyToWords } from "@/lib/numberToWords";
 import {
   Dialog,
@@ -97,7 +99,15 @@ interface NovaAquisicaoDialogProps {
   onSuccess?: () => void;
 }
 
-type Step = "busca" | "dados" | "investimento" | "revisao";
+type Step = "busca" | "dados" | "investimento" | "signatario" | "revisao";
+type TipoVenda = "direta" | "via_agente";
+
+// Mock de agentes para seleção
+const agentesMock = [
+  { id: "1", nome: "Carlos Vendedor" },
+  { id: "2", nome: "Juliana Corretora" },
+  { id: "3", nome: "Roberto Agente" },
+];
 
 const ESTADOS_BRASIL = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
@@ -110,6 +120,17 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>("busca");
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Estados para tipo de venda
+  const [tipoVenda, setTipoVenda] = useState<TipoVenda>("direta");
+  const [agenteSelecionado, setAgenteSelecionado] = useState<string>("");
+  const [valorBruto, setValorBruto] = useState<string>("");
+  const [comissaoAgente, setComissaoAgente] = useState<string>("");
+  const [valorLiquido, setValorLiquido] = useState<string>("");
+  
+  // Estado para modal de signatário
+  const [modalSignatarioOpen, setModalSignatarioOpen] = useState(false);
+  const [signatarioId, setSignatarioId] = useState<string | null>(null);
 
   const {
     register,
@@ -190,17 +211,49 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
         break;
       case "investimento":
         isValid = await trigger("acordos");
-        if (isValid) setCurrentStep("revisao");
+        if (isValid) {
+          // Validações adicionais para venda via agente
+          if (tipoVenda === "via_agente") {
+            if (!agenteSelecionado) {
+              toast.error("Selecione um agente comissionado");
+              return;
+            }
+            if (!valorBruto || !comissaoAgente) {
+              toast.error("Preencha o valor bruto e a comissão");
+              return;
+            }
+          }
+          setModalSignatarioOpen(true);
+        }
+        break;
+      case "signatario":
+        setCurrentStep("revisao");
         break;
     }
   };
 
   const handlePrevStep = () => {
-    const steps: Step[] = ["busca", "dados", "investimento", "revisao"];
+    const steps: Step[] = ["busca", "dados", "investimento", "signatario", "revisao"];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1]);
     }
+  };
+
+  const handleConfirmarSignatario = (idSignatario: string | null) => {
+    setSignatarioId(idSignatario);
+    setCurrentStep("revisao");
+  };
+  
+  // Calcular valor líquido automaticamente
+  const calcularValorLiquido = () => {
+    if (tipoVenda === "via_agente" && valorBruto && comissaoAgente) {
+      const bruto = parseFloat(valorBruto.replace(/\./g, "").replace(",", "."));
+      const comissao = parseFloat(comissaoAgente.replace(/\./g, "").replace(",", "."));
+      const liquido = bruto - comissao;
+      return liquido.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+    return "0,00";
   };
 
   const onSubmit = async (data: AquisicaoFormData) => {
@@ -257,6 +310,7 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
       { id: "busca", label: "Busca", icon: Search },
       { id: "dados", label: "Dados Pessoais", icon: User },
       { id: "investimento", label: "Investimento", icon: Briefcase },
+      { id: "signatario", label: "Signatário", icon: FileText },
       { id: "revisao", label: "Revisão", icon: CheckCircle },
     ];
 
@@ -646,6 +700,137 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
           </p>
         </div>
       </div>
+
+      {/* Toggle Tipo de Venda */}
+      <Card className="border-2">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-primary" />
+            Tipo de Venda
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RadioGroup
+            value={tipoVenda}
+            onValueChange={(value) => {
+              setTipoVenda(value as TipoVenda);
+              // Limpar campos ao trocar tipo
+              if (value === "direta") {
+                setAgenteSelecionado("");
+                setValorBruto("");
+                setComissaoAgente("");
+                setValorLiquido("");
+              }
+            }}
+            className="space-y-3"
+          >
+            <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+              <RadioGroupItem value="direta" id="venda-direta" />
+              <Label htmlFor="venda-direta" className="cursor-pointer flex-1">
+                <div className="font-medium">Venda Direta</div>
+                <p className="text-sm text-muted-foreground">
+                  Venda direta ao investidor, sem intermediação
+                </p>
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+              <RadioGroupItem value="via_agente" id="via-agente" />
+              <Label htmlFor="via-agente" className="cursor-pointer flex-1">
+                <div className="font-medium">Venda via Agente Comissionado</div>
+                <p className="text-sm text-muted-foreground">
+                  Venda intermediada por agente (com comissão)
+                </p>
+              </Label>
+            </div>
+          </RadioGroup>
+
+          {/* Campos condicionais para Venda via Agente */}
+          {tipoVenda === "via_agente" && (
+            <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Separator />
+              
+              <div className="space-y-2">
+                <Label htmlFor="agente-select">Agente Comissionado *</Label>
+                <Select value={agenteSelecionado} onValueChange={setAgenteSelecionado}>
+                  <SelectTrigger id="agente-select" className="bg-background">
+                    <SelectValue placeholder="Selecione o agente" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    {agentesMock.map((agente) => (
+                      <SelectItem key={agente.id} value={agente.id}>
+                        {agente.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="valor-bruto">Valor Bruto (Cessão) *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      R$
+                    </span>
+                    <Input
+                      id="valor-bruto"
+                      placeholder="0,00"
+                      value={valorBruto}
+                      onChange={(e) => {
+                        const formatted = formatCurrency(e.target.value);
+                        setValorBruto(formatted);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Valor que consta no contrato
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="comissao">Comissão do Agente *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      R$
+                    </span>
+                    <Input
+                      id="comissao"
+                      placeholder="0,00"
+                      value={comissaoAgente}
+                      onChange={(e) => {
+                        const formatted = formatCurrency(e.target.value);
+                        setComissaoAgente(formatted);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Valor pago ao agente
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Valor Líquido (Aporte do Investidor)
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Bruto - Comissão = Líquido
+                    </p>
+                  </div>
+                  <p className="text-2xl font-bold text-primary">
+                    R$ {calcularValorLiquido()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {fields.map((field, index) => (
         <Card key={field.id} className="relative">
@@ -1198,6 +1383,11 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
             {currentStep === "busca" && renderBuscaStep()}
             {currentStep === "dados" && renderDadosStep()}
             {currentStep === "investimento" && renderInvestimentoStep()}
+            {currentStep === "signatario" && (
+              <div className="flex items-center justify-center min-h-[400px]">
+                <p className="text-muted-foreground">Aguardando definição do signatário...</p>
+              </div>
+            )}
             {currentStep === "revisao" && renderRevisaoStep()}
           </div>
 
@@ -1207,25 +1397,33 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
               type="button"
               variant="outline"
               onClick={handlePrevStep}
-              disabled={currentStep === "busca" || isLoading}
+              disabled={currentStep === "busca" || currentStep === "signatario" || isLoading}
             >
               <ChevronLeft className="mr-2 h-4 w-4" />
               Voltar
             </Button>
 
-            {currentStep !== "revisao" ? (
+            {currentStep !== "revisao" && currentStep !== "signatario" ? (
               <Button type="button" onClick={handleNextStep} disabled={isLoading}>
                 Próxima Etapa
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
-            ) : (
+            ) : currentStep === "revisao" ? (
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Gerando..." : "Gerar Aquisição"}
               </Button>
-            )}
+            ) : null}
           </div>
         </form>
       </DialogContent>
+      
+      {/* Modal de Definir Signatário */}
+      <DefinirSignatarioModal
+        open={modalSignatarioOpen}
+        onOpenChange={setModalSignatarioOpen}
+        nomeBeneficiario={formData.nomeCliente || "Cliente"}
+        onConfirmar={handleConfirmarSignatario}
+      />
     </Dialog>
   );
 };
