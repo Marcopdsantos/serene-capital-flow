@@ -8,6 +8,7 @@ import { Plus, Search, ChevronRight, ChevronLeft, FileText, CheckCircle, Calenda
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DefinirSignatarioModal } from "@/components/DefinirSignatarioModal";
 import { currencyToWords } from "@/lib/numberToWords";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,8 @@ import { cn } from "@/lib/utils";
 
 const acordoSchema = z.object({
   valorAporte: z.string().min(1, "Valor do aporte é obrigatório"),
+  valorViaSaldo: z.string().optional(),
+  valorViaPix: z.string().optional(),
   valorParcela: z.string().min(1, "Valor da parcela é obrigatório"),
   valorTotalReceber: z.string().min(1, "Valor total é obrigatório"),
   valorAporteExtenso: z.string().optional(),
@@ -149,6 +152,8 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
       tipoConta: "",
       acordos: [{
         valorAporte: "",
+        valorViaSaldo: "",
+        valorViaPix: "",
         valorParcela: "",
         valorTotalReceber: "",
         valorAporteExtenso: "",
@@ -223,6 +228,16 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
               return;
             }
           }
+          
+          // Validar soma de pagamentos para todos os acordos
+          const todasSomasValidas = formData.acordos?.every((_, index) => validarSomaPagamentos(index));
+          if (!todasSomasValidas) {
+            toast.error("Verifique a soma dos pagamentos", {
+              description: "A soma de Saldo + PIX deve ser igual ao valor do aporte em todos os acordos",
+            });
+            return;
+          }
+          
           setModalSignatarioOpen(true);
         }
         break;
@@ -289,6 +304,25 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
       minimumFractionDigits: 2,
     });
     return formatted;
+  };
+
+  const parseFormattedCurrency = (value: string): number => {
+    if (!value) return 0;
+    const numbers = value.replace(/\./g, "").replace(",", ".");
+    return parseFloat(numbers) || 0;
+  };
+
+  const validarSomaPagamentos = (index: number): boolean => {
+    const acordo = formData.acordos?.[index];
+    if (!acordo) return true;
+    
+    const aporte = parseFormattedCurrency(acordo.valorAporte);
+    const saldo = parseFormattedCurrency(acordo.valorViaSaldo || "0");
+    const pix = parseFormattedCurrency(acordo.valorViaPix || "0");
+    
+    if (aporte === 0) return true;
+    
+    return Math.abs((saldo + pix) - aporte) < 0.01;
   };
 
   const formatCPF = (value: string) => {
@@ -883,6 +917,94 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
               </div>
             )}
 
+            <Separator />
+
+            {/* Definição do Pagamento */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Definição do Pagamento</Label>
+                {formData.acordos?.[index]?.valorAporte && !validarSomaPagamentos(index) && (
+                  <Badge variant="destructive" className="text-xs">
+                    Soma inválida
+                  </Badge>
+                )}
+                {formData.acordos?.[index]?.valorAporte && validarSomaPagamentos(index) && (
+                  <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                    ✓ Soma válida
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Especifique como o aporte será pago. A soma dos valores deve ser igual ao valor do aporte.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`acordos.${index}.valorViaSaldo`}>Valor via Saldo em Conta</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      R$
+                    </span>
+                    <Input
+                      id={`acordos.${index}.valorViaSaldo`}
+                      placeholder="0,00"
+                      {...register(`acordos.${index}.valorViaSaldo`)}
+                      onChange={(e) => {
+                        const formatted = formatCurrency(e.target.value);
+                        setValue(`acordos.${index}.valorViaSaldo`, formatted);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`acordos.${index}.valorViaPix`}>Valor via PIX/Cheque</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      R$
+                    </span>
+                    <Input
+                      id={`acordos.${index}.valorViaPix`}
+                      placeholder="0,00"
+                      {...register(`acordos.${index}.valorViaPix`)}
+                      onChange={(e) => {
+                        const formatted = formatCurrency(e.target.value);
+                        setValue(`acordos.${index}.valorViaPix`, formatted);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {formData.acordos?.[index]?.valorAporte && (
+                <div className={cn(
+                  "p-3 rounded-md border transition-colors",
+                  validarSomaPagamentos(index) 
+                    ? "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800" 
+                    : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"
+                )}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">
+                      Soma: R$ {(
+                        parseFormattedCurrency(formData.acordos[index].valorViaSaldo || "0") +
+                        parseFormattedCurrency(formData.acordos[index].valorViaPix || "0")
+                      ).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-sm font-medium">
+                      Aporte: R$ {parseFormattedCurrency(formData.acordos[index].valorAporte).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  {!validarSomaPagamentos(index) && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-2">
+                      A soma dos valores (Saldo + PIX) deve ser igual ao valor do aporte
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`acordos.${index}.valorParcela`}>Valor da Parcela *</Label>
@@ -1140,6 +1262,8 @@ export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => 
         variant="outline"
         onClick={() => append({
           valorAporte: "",
+          valorViaSaldo: "",
+          valorViaPix: "",
           valorParcela: "",
           valorTotalReceber: "",
           valorAporteExtenso: "",

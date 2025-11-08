@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { User, TrendingUp, FileText, Wallet, AlertCircle, Eye } from "lucide-react";
+import { User, TrendingUp, FileText, Wallet, AlertCircle, Eye, Phone, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface FichaCadastralModalProps {
@@ -11,6 +11,7 @@ interface FichaCadastralModalProps {
   cliente: {
     id?: string;
     nome: string;
+    telefone?: string;
     totalInvestido: number;
     totalAcordos: number;
     saldoDisponivel: number;
@@ -41,6 +42,33 @@ export const FichaCadastralModal = ({ open, onOpenChange, cliente }: FichaCadast
         <Separator className="my-4" />
 
         <div className="space-y-4">
+          {/* Contato */}
+          {cliente.telefone && (
+            <Card className="bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/20 dark:to-green-900/10 border-green-200 dark:border-green-800">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">Contato</p>
+                  <Phone className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-sans font-semibold text-green-900 dark:text-green-100">
+                    {cliente.telefone}
+                  </p>
+                  <a 
+                    href={`https://wa.me/55${cliente.telefone.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs transition-colors"
+                  >
+                    <MessageCircle className="h-3 w-3" />
+                    WhatsApp
+                  </a>
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">Clique para enviar mensagem</p>
+              </CardContent>
+            </Card>
+          )}
+          
           {/* Grid de Métricas */}
           <div className="grid md:grid-cols-2 gap-4">
             {/* Total Investido */}

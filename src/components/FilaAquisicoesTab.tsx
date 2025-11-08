@@ -127,6 +127,7 @@ const aquisicoesData: Aquisicao[] = [
 const clientesData = {
   "Antônio Braga": {
     nome: "Antônio Braga",
+    telefone: "(11) 98765-4321",
     totalInvestido: 138000,
     totalAcordos: 3,
     saldoDisponivel: 45000,
@@ -134,6 +135,7 @@ const clientesData = {
   },
   "Maria Silva": {
     nome: "Maria Silva",
+    telefone: "(21) 99876-5432",
     totalInvestido: 50000,
     totalAcordos: 1,
     saldoDisponivel: 0,
@@ -141,6 +143,7 @@ const clientesData = {
   },
   "João Santos": {
     nome: "João Santos",
+    telefone: "(11) 91234-5678",
     totalInvestido: 100000,
     totalAcordos: 1,
     saldoDisponivel: 25000,
@@ -148,6 +151,7 @@ const clientesData = {
   },
   "Pedro Oliveira": {
     nome: "Pedro Oliveira",
+    telefone: "(31) 98765-1234",
     totalInvestido: 75000,
     totalAcordos: 1,
     saldoDisponivel: 10000,
@@ -155,6 +159,7 @@ const clientesData = {
   },
   "Ana Costa": {
     nome: "Ana Costa",
+    telefone: "(85) 99123-4567",
     totalInvestido: 120000,
     totalAcordos: 1,
     saldoDisponivel: 0,

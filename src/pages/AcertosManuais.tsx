@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DollarSign, Upload, TrendingUp, TrendingDown, Paperclip, FileCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { AnexarComprovanteModal } from "@/components/AnexarComprovanteModal";
 
 const acertoSchema = z.object({
   idCliente: z.string().min(1, "Selecione um cliente"),
@@ -65,8 +66,9 @@ const clientesMock = [
 ];
 
 export default function AcertosManuais() {
-  const [acertos] = useState<AcertoManual[]>(acertosMock);
+  const [acertos, setAcertos] = useState<AcertoManual[]>(acertosMock);
   const [modalComprovanteOpen, setModalComprovanteOpen] = useState(false);
+  const [acertoSelecionado, setAcertoSelecionado] = useState<AcertoManual | null>(null);
 
   const {
     register,
@@ -93,6 +95,29 @@ export default function AcertosManuais() {
   const formatCurrency = (value: string) => {
     const numbers = value.replace(/\D/g, "");
     return (Number(numbers) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  };
+
+  const handleAnexarComprovante = (acerto: AcertoManual) => {
+    setAcertoSelecionado(acerto);
+    setModalComprovanteOpen(true);
+  };
+
+  const handleConfirmarAnexo = (file: File) => {
+    if (!acertoSelecionado) return;
+    
+    // Atualizar status do acerto para conciliado
+    setAcertos(prev => 
+      prev.map(a => 
+        a.id === acertoSelecionado.id 
+          ? { ...a, status: "conciliado", comprovanteUrl: URL.createObjectURL(file) }
+          : a
+      )
+    );
+
+    toast({
+      title: "✓ Comprovante anexado",
+      description: `Comprovante vinculado ao acerto de ${acertoSelecionado.cliente}`,
+    });
   };
 
   return (
@@ -175,6 +200,7 @@ export default function AcertosManuais() {
                 <TableHead>Valor</TableHead>
                 <TableHead>Justificativa</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -188,12 +214,41 @@ export default function AcertosManuais() {
                   </TableCell>
                   <TableCell className="truncate max-w-xs">{a.justificativa}</TableCell>
                   <TableCell><Badge variant="neutral">{a.status === "conciliado" ? "Conciliado" : "Pendente"}</Badge></TableCell>
+                  <TableCell>
+                    {a.tipo === "debito" && a.status === "pendente" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleAnexarComprovante(a)}
+                      >
+                        <Paperclip className="h-4 w-4 mr-2" />
+                        Anexar Comprovante
+                      </Button>
+                    )}
+                    {a.status === "conciliado" && (
+                      <Badge variant="neutral" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                        <FileCheck className="h-3 w-3 mr-1" />
+                        Conciliado
+                      </Badge>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal de Anexar Comprovante */}
+      {acertoSelecionado && (
+        <AnexarComprovanteModal
+          open={modalComprovanteOpen}
+          onOpenChange={setModalComprovanteOpen}
+          acertoId={acertoSelecionado.id}
+          clienteNome={acertoSelecionado.cliente}
+          onConfirm={handleConfirmarAnexo}
+        />
+      )}
     </div>
   );
 }
