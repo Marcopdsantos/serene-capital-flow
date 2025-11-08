@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown } from "lucide-react";
+import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown, FileText, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { FichaCadastralModal } from "./FichaCadastralModal";
 
-type StatusType = "aguardando_assinatura" | "aguardando_comprovante" | "pendente_conciliacao" | "ativo";
+type StatusType = "pendente_contrato" | "aguardando_comprovante" | "pendente_conciliacao" | "ativo";
 type TipoPagamento = "pix" | "saldo_interno" | "misto";
 
 interface Aquisicao {
@@ -26,12 +26,12 @@ interface Aquisicao {
 }
 
 const statusConfig = {
-  aguardando_assinatura: {
-    label: "Aguardando Assinatura",
+  pendente_contrato: {
+    label: "Pendente Contrato",
     color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
-    icon: Clock,
-    acao: "Enviar Contrato",
-    acaoIcon: Mail,
+    icon: FileText,
+    acao: "Gerar Contrato",
+    acaoIcon: FileText,
   },
   aguardando_comprovante: {
     label: "Aguardando Comprovante",
@@ -78,7 +78,7 @@ const aquisicoesData: Aquisicao[] = [
     totalReceber: "R$ 65.000",
     detalhePagamento: "R$ 50k PIX",
     tipoPagamento: "pix",
-    status: "aguardando_assinatura",
+    status: "pendente_contrato",
     notas: "",
     mesReferencia: "2024-10",
     dataInicio: "2024-10-18",
@@ -196,7 +196,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
 
   const contadores = {
     todos: aquisicoesPorMes.length,
-    aguardando_assinatura: aquisicoesPorMes.filter((aq) => aq.status === "aguardando_assinatura").length,
+    pendente_contrato: aquisicoesPorMes.filter((aq) => aq.status === "pendente_contrato").length,
     aguardando_comprovante: aquisicoesPorMes.filter((aq) => aq.status === "aguardando_comprovante").length,
     pendente_conciliacao: aquisicoesPorMes.filter((aq) => aq.status === "pendente_conciliacao").length,
     ativo: aquisicoesPorMes.filter((aq) => aq.status === "ativo").length,
@@ -283,15 +283,17 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                 Todos ({contadores.todos})
               </TabsTrigger>
               <TabsTrigger 
-                value="aguardando_assinatura" 
+                value="pendente_contrato" 
                 className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
-                Assinatura ({contadores.aguardando_assinatura})
+                <FileText className="h-4 w-4 mr-2" />
+                Contrato ({contadores.pendente_contrato})
               </TabsTrigger>
               <TabsTrigger 
                 value="aguardando_comprovante" 
                 className="text-xs data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
+                <Upload className="h-4 w-4 mr-2" />
                 Comprovante ({contadores.aguardando_comprovante})
               </TabsTrigger>
               <TabsTrigger 

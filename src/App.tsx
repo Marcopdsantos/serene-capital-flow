@@ -10,6 +10,7 @@ import PainelGeral from "./pages/PainelGeral";
 import CarteiraAcordos from "./pages/CarteiraAcordos";
 import CentralArquivos from "./pages/CentralArquivos";
 import ClientesAgentes from "./pages/ClientesAgentes";
+import FichaCadastral from "./pages/FichaCadastral";
 import FluxoCaixaPage from "./pages/FluxoCaixaPage";
 import AcertosManuais from "./pages/AcertosManuais";
 import ClientPortal from "./pages/ClientPortal";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="operacoes/carteira" element={<CarteiraAcordos />} />
             <Route path="operacoes/arquivos" element={<CentralArquivos />} />
             <Route path="cadastros/clientes" element={<ClientesAgentes />} />
+            <Route path="cadastros/clientes/:id" element={<FichaCadastral />} />
             <Route path="financeiro/fluxo" element={<FluxoCaixaPage />} />
             <Route path="financeiro/acertos" element={<AcertosManuais />} />
           </Route>

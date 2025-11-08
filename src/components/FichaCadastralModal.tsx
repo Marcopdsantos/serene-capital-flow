@@ -1,12 +1,15 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { User, TrendingUp, FileText, Wallet, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, TrendingUp, FileText, Wallet, AlertCircle, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface FichaCadastralModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   cliente: {
+    id?: string;
     nome: string;
     totalInvestido: number;
     totalAcordos: number;
@@ -16,6 +19,8 @@ interface FichaCadastralModalProps {
 }
 
 export const FichaCadastralModal = ({ open, onOpenChange, cliente }: FichaCadastralModalProps) => {
+  const navigate = useNavigate();
+  
   if (!cliente) return null;
 
   return (
@@ -94,6 +99,19 @@ export const FichaCadastralModal = ({ open, onOpenChange, cliente }: FichaCadast
             </Card>
           </div>
         </div>
+
+        <DialogFooter>
+          <Button 
+            onClick={() => {
+              onOpenChange(false);
+              navigate(`/dashboard/cadastros/clientes/${cliente.id || '1'}`);
+            }}
+            className="w-full"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Ver Ficha Completa
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
