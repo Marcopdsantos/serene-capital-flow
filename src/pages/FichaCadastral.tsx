@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, TrendingUp, FileText, Wallet, DollarSign, CheckCircle, Clock } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, User, TrendingUp, FileText, Wallet, DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -76,6 +77,10 @@ export default function FichaCadastral() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tipoAcertoRapido, setTipoAcertoRapido] = useState<"credito" | "debito">("credito");
+  
+  // Mock: Verificar se cliente foi signatário mas não beneficiário
+  const clienteEhApenasSigmatario = acordosSignatarioMock.length > 0;
+  const numContratosComoSignatario = acordosSignatarioMock.length;
 
   const {
     register,
@@ -267,6 +272,18 @@ export default function FichaCadastral() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Nota de Auditoria (Signatário) */}
+      {clienteEhApenasSigmatario && (
+        <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertTitle>Nota de Auditoria (Signatário)</AlertTitle>
+          <AlertDescription>
+            Este cliente assinou {numContratosComoSignatario} contrato(s) como Titular Legal,
+            mas não é o Proprietário Financeiro (Beneficiário). Consulte a aba "Acordos como Signatário".
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Abas de Vínculos */}
       <Card>

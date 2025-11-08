@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { FolderOpen, Upload, Download, File, Search, Grid3x3, List, FileText, Image as ImageIcon } from "lucide-react";
+import { FolderOpen, Upload, Download, File, Search, Grid3x3, List, FileText, Image as ImageIcon, Eye } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -85,6 +85,14 @@ const clientesMock = [
   { id: "4", nome: "Ana Costa" },
 ];
 
+// Mock de transações (aquisições/saques) para vinculação
+const transacoesMock = [
+  { id: "aq-001", tipo: "Aquisição", descricao: "Aquisição #1001 - João Silva", clienteId: "1" },
+  { id: "aq-002", tipo: "Aquisição", descricao: "Aquisição #1002 - Maria Silva", clienteId: "2" },
+  { id: "saq-001", tipo: "Saque", descricao: "Saque #501 - Pedro Oliveira", clienteId: "3" },
+  { id: "aq-003", tipo: "Aquisição", descricao: "Aquisição #1003 - Ana Costa", clienteId: "4" },
+];
+
 export default function CentralArquivos() {
   const [visualizacao, setVisualizacao] = useState<"pastas" | "tabela">("tabela");
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "vinculado" | "orfao">("todos");
@@ -93,6 +101,7 @@ export default function CentralArquivos() {
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null);
   const [clienteUpload, setClienteUpload] = useState("");
   const [tipoDocumento, setTipoDocumento] = useState("");
+  const [transacaoVinculada, setTransacaoVinculada] = useState("");
 
   const arquivosFiltrados = arquivosMock.filter((arquivo) => {
     const matchStatus = filtroStatus === "todos" || arquivo.status === filtroStatus;
@@ -126,6 +135,13 @@ export default function CentralArquivos() {
     toast({
       title: "Download iniciado",
       description: `${arquivo.nomeArquivo}`,
+    });
+  };
+
+  const handleVisualizar = (arquivo: Arquivo) => {
+    toast({
+      title: "Visualizando arquivo",
+      description: `Abrindo preview de ${arquivo.nomeArquivo}`,
     });
   };
 
@@ -225,6 +241,24 @@ export default function CentralArquivos() {
                         {cliente.nome}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="transacao-vinculada">Vincular a Transação (Opcional)</Label>
+                <Select value={transacaoVinculada} onValueChange={setTransacaoVinculada}>
+                  <SelectTrigger id="transacao-vinculada">
+                    <SelectValue placeholder="Buscar ID da aquisição/saque..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    {transacoesMock
+                      .filter((t) => !clienteUpload || t.clienteId === clienteUpload)
+                      .map((transacao) => (
+                        <SelectItem key={transacao.id} value={transacao.id}>
+                          {transacao.descricao}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -391,13 +425,22 @@ export default function CentralArquivos() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDownload(arquivo)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleVisualizar(arquivo)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDownload(arquivo)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))

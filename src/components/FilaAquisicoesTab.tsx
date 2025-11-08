@@ -8,6 +8,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown, FileText, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { FichaCadastralModal } from "./FichaCadastralModal";
+import { DefinirSignatarioModal } from "./DefinirSignatarioModal";
+import { ComprovanteModal } from "./ComprovanteModal";
 
 type StatusType = "pendente_contrato" | "aguardando_comprovante" | "pendente_conciliacao" | "ativo";
 type TipoPagamento = "pix" | "saldo_interno" | "misto";
@@ -175,6 +177,11 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
     cliente: typeof clientesData[keyof typeof clientesData] | null;
   }>({ open: false, cliente: null });
   const [ordenacaoComprador, setOrdenacaoComprador] = useState<"asc" | "desc" | null>(null);
+  
+  // Estados para modais de ação
+  const [signatarioModalOpen, setSignatarioModalOpen] = useState(false);
+  const [comprovanteModalOpen, setComprovanteModalOpen] = useState(false);
+  const [aquisicaoSelecionada, setAquisicaoSelecionada] = useState<Aquisicao | null>(null);
 
   // Filtra aquisições por mês
   const aquisicoesPorMes = aquisicoesData.filter((aq) => aq.mesReferencia === mesSelecionado);
@@ -208,19 +215,37 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
   };
 
   const handleAcao = (aquisicao: Aquisicao) => {
-    const config = statusConfig[aquisicao.status];
-    const acaoLabel =
-      aquisicao.status === "pendente_conciliacao" && aquisicao.tipoPagamento === "saldo_interno"
-        ? statusConfig.pendente_conciliacao.acaoAlternativa
-        : config.acao;
+    setAquisicaoSelecionada(aquisicao);
+    
+    if (aquisicao.status === "pendente_contrato") {
+      setSignatarioModalOpen(true);
+    } else if (aquisicao.status === "aguardando_comprovante") {
+      setComprovanteModalOpen(true);
+    } else if (aquisicao.status === "pendente_conciliacao") {
+      // Lógica de conciliação
+      const acaoLabel = aquisicao.tipoPagamento === "saldo_interno"
+        ? "Conciliar Saldo Interno"
+        : "Conciliar Pagamento";
+      
+      toast({
+        title: "Conciliação confirmada",
+        description: `${acaoLabel} executado para ${aquisicao.comprador}`,
+      });
+      console.log(`Conciliação:`, aquisicao);
+    } else if (aquisicao.status === "ativo") {
+      toast({
+        description: `Visualizando detalhes de ${aquisicao.comprador}`,
+      });
+    }
+  };
 
+  const handleConfirmarSignatario = (signatarioId: string | null) => {
     toast({
-      description: `Ação "${acaoLabel}" executada para ${aquisicao.comprador}`,
-      duration: 3000,
+      title: "✓ Contrato enviado",
+      description: `Contrato gerado e enviado via ZapSign para ${aquisicaoSelecionada?.comprador}`,
     });
-
-    // Aqui você implementaria a lógica real de cada ação
-    console.log(`Ação: ${acaoLabel}`, aquisicao);
+    setSignatarioModalOpen(false);
+    console.log("Signatário confirmado:", signatarioId);
   };
 
   const getMesLabel = (mesRef: string) => {
@@ -442,6 +467,27 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
         onOpenChange={(open) => setModalCliente({ open, cliente: null })}
         cliente={modalCliente.cliente}
       />
+
+      {/* Modal de Definir Signatário */}
+      <DefinirSignatarioModal
+        open={signatarioModalOpen}
+        onOpenChange={setSignatarioModalOpen}
+        nomeBeneficiario={aquisicaoSelecionada?.comprador || ""}
+        onConfirmar={handleConfirmarSignatario}
+      />
+
+      {/* Modal de Comprovante */}
+      {aquisicaoSelecionada && (
+        <ComprovanteModal
+          open={comprovanteModalOpen}
+          onOpenChange={setComprovanteModalOpen}
+          acordo={{
+            id: aquisicaoSelecionada.id,
+            cliente: aquisicaoSelecionada.comprador,
+            valor: aquisicaoSelecionada.aporte,
+          }}
+        />
+      )}
     </>
   );
 };

@@ -14,12 +14,14 @@ interface Cliente {
   tipo: "investidor" | "agente";
   numAcordos: number;
   saldoConta: number;
+  cpf?: string;
+  cnpj?: string;
 }
 
 const clientesMock: Cliente[] = [
-  { id: "1", nome: "João Silva", tipo: "investidor", numAcordos: 5, saldoConta: 15250 },
-  { id: "2", nome: "Maria Silva", tipo: "investidor", numAcordos: 2, saldoConta: 8500 },
-  { id: "3", nome: "Carlos Vendedor", tipo: "agente", numAcordos: 8, saldoConta: 12000 },
+  { id: "1", nome: "João Silva", tipo: "investidor", numAcordos: 5, saldoConta: 15250, cpf: "123.456.789-00" },
+  { id: "2", nome: "Maria Silva", tipo: "investidor", numAcordos: 2, saldoConta: 8500, cpf: "987.654.321-00" },
+  { id: "3", nome: "Carlos Vendedor", tipo: "agente", numAcordos: 8, saldoConta: 12000, cnpj: "12.345.678/0001-90" },
 ];
 
 export default function ClientesAgentes() {
@@ -29,7 +31,10 @@ export default function ClientesAgentes() {
 
   const clientesFiltrados = clientesMock.filter((c) => {
     const matchTipo = filtroTipo === "todos" || c.tipo === filtroTipo;
-    const matchBusca = c.nome.toLowerCase().includes(busca.toLowerCase());
+    const matchBusca = 
+      c.nome.toLowerCase().includes(busca.toLowerCase()) ||
+      c.cpf?.replace(/\D/g, '').includes(busca.replace(/\D/g, '')) ||
+      c.cnpj?.replace(/\D/g, '').includes(busca.replace(/\D/g, ''));
     return matchTipo && matchBusca;
   });
 
@@ -56,7 +61,7 @@ export default function ClientesAgentes() {
         <CardContent className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar..." value={busca} onChange={(e) => setBusca(e.target.value)} className="pl-10" />
+            <Input placeholder="Buscar por nome, CPF ou CNPJ..." value={busca} onChange={(e) => setBusca(e.target.value)} className="pl-10" />
           </div>
 
           <Tabs value={filtroTipo} onValueChange={(v) => setFiltroTipo(v as any)}>
