@@ -13,6 +13,7 @@ import ClientesAgentes from "./pages/ClientesAgentes";
 import FichaCadastral from "./pages/FichaCadastral";
 import FluxoCaixaPage from "./pages/FluxoCaixaPage";
 import AcertosManuais from "./pages/AcertosManuais";
+import ComissoesAgentes from "./pages/ComissoesAgentes";
 import MesaLiquidacao from "./pages/MesaLiquidacao";
 import ClientPortal from "./pages/ClientPortal";
 import MeuPerfil from "./pages/MeuPerfil";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="cadastros/clientes/:id" element={<FichaCadastral />} />
             <Route path="financeiro/fluxo" element={<FluxoCaixaPage />} />
             <Route path="financeiro/acertos" element={<AcertosManuais />} />
+            <Route path="financeiro/comissoes" element={<ComissoesAgentes />} />
             <Route path="operacoes/mesa-liquidacao" element={<MesaLiquidacao />} />
           </Route>
           <Route path="/portal" element={<ClientPortal />} />
