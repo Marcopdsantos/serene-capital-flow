@@ -292,7 +292,7 @@ export default function FichaCadastral() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="acordos-beneficiario">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="acordos-beneficiario">
                 <FileText className="h-4 w-4 mr-2" />
                 Acordos como Beneficiário
@@ -300,10 +300,6 @@ export default function FichaCadastral() {
               <TabsTrigger value="acordos-signatario">
                 <User className="h-4 w-4 mr-2" />
                 Acordos como Signatário
-              </TabsTrigger>
-              <TabsTrigger value="comissoes">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Comissões (Agente)
               </TabsTrigger>
             </TabsList>
 
@@ -387,68 +383,6 @@ export default function FichaCadastral() {
                   </TableBody>
                 </Table>
               </div>
-            </TabsContent>
-
-            <TabsContent value="comissoes" className="mt-6">
-              {clienteMock.tipo === "agente" ? (
-                <>
-                  <Card className="mb-4 border-2">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardDescription>Total em Comissões Recebidas</CardDescription>
-                        <DollarSign className="h-5 w-5 text-success" />
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl font-bold text-success">
-                        R$ 12.500,00
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead>Data</TableHead>
-                          <TableHead>Cliente (Beneficiário)</TableHead>
-                          <TableHead>ID Aquisição</TableHead>
-                          <TableHead>Valor Comissão</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {[
-                          { data: "15/11/2024", cliente: "Maria Costa", aquisicaoId: "#ACQ-1050", comissao: 2500, status: "paga" },
-                          { data: "10/11/2024", cliente: "Pedro Santos", aquisicaoId: "#ACQ-1048", comissao: 5000, status: "paga" },
-                          { data: "05/11/2024", cliente: "Ana Silva", aquisicaoId: "#ACQ-1042", comissao: 5000, status: "paga" },
-                        ].map((comissao, i) => (
-                          <TableRow key={i}>
-                            <TableCell>{comissao.data}</TableCell>
-                            <TableCell className="font-medium">{comissao.cliente}</TableCell>
-                            <TableCell>{comissao.aquisicaoId}</TableCell>
-                            <TableCell className="font-semibold text-success">
-                              R$ {comissao.comissao.toLocaleString("pt-BR")}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="default" className="bg-success text-success-foreground">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Paga
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">
-                    Este cliente não é um Agente Comissionado.
-                  </p>
-                </div>
-              )}
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrendingUp, Clock, CheckCircle2, Home, Briefcase, Receipt, UserCircle } from "lucide-react";
+import { TrendingUp, Clock, CheckCircle2, Home, Briefcase, Receipt, UserCircle, CalendarClock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,8 +61,8 @@ const ClientPortal = () => {
               </p>
             </div>
 
-            {/* Balance and Next Payment Cards */}
-            <div className="grid md:grid-cols-2 gap-6 animate-slide-up">
+            {/* Balance, Projection and Next Payment Cards */}
+            <div className="grid md:grid-cols-3 gap-6 animate-slide-up">
           <Card className="shadow-editorial border-2">
             <CardHeader className="pb-8">
               <CardDescription className="text-base">Saldo Disponível</CardDescription>
@@ -77,6 +77,27 @@ const ClientPortal = () => {
               <div className="flex items-center gap-2 text-success">
                 <TrendingUp className="h-5 w-5" />
                 <span className="font-medium numeric-value">+R$ 2.850,00 este mês</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-editorial border-2 border-primary/20">
+            <CardHeader className="pb-8">
+              <CardDescription className="text-base flex items-center gap-2">
+                <CalendarClock className="h-4 w-4" />
+                Projeção / A Receber
+              </CardDescription>
+              <CardTitle className="text-7xl font-sans mt-4 text-primary" style={{ fontWeight: 500 }}>
+                R$ 16.250,00
+              </CardTitle>
+              <p className="text-muted-foreground mt-4 text-lg">
+                Parcelas pendentes com vencimento nos próximos 30 dias.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2 text-primary">
+                <CheckCircle2 className="h-5 w-5" />
+                <span className="font-medium">5 parcelas aguardando crédito</span>
               </div>
             </CardContent>
           </Card>
@@ -180,23 +201,27 @@ const ClientPortal = () => {
                       <tr>
                         <th className="text-left py-3 px-4 text-sm font-medium">Data</th>
                         <th className="text-left py-3 px-4 text-sm font-medium">Descrição</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium">Origem</th>
                         <th className="text-right py-3 px-4 text-sm font-medium">Valor</th>
                         <th className="text-right py-3 px-4 text-sm font-medium">Saldo Resultante</th>
                       </tr>
                     </thead>
                     <tbody>
                       {[
-                        { tipo: "credito", desc: "Crédito da parcela 5/10 (Acordo #1001)", valor: 6500, data: "28/11/2024 - 05h00", saldoAnterior: 120950 },
-                        { tipo: "credito", desc: "Crédito da parcela 3/10 (Acordo #1002)", valor: 9750, data: "28/11/2024 - 05h00", saldoAnterior: 111200 },
-                        { tipo: "debito", desc: "Débito para aporte no Acordo #1004", valor: -30000, data: "25/11/2024 - 14h30", saldoAnterior: 141200 },
-                        { tipo: "debito", desc: "Saque solicitado via PIX", valor: -10000, data: "20/11/2024 - 10h15", saldoAnterior: 151200 },
-                        { tipo: "credito", desc: "Crédito da parcela 4/10 (Acordo #1001)", valor: 6500, data: "28/10/2024 - 05h00", saldoAnterior: 144700 },
+                        { tipo: "credito", desc: "Crédito da parcela 5/10 (Acordo #1001)", origem: "Vencimento automático", valor: 6500, data: "28/11/2024 - 05h00", saldoAnterior: 120950 },
+                        { tipo: "credito", desc: "Crédito da parcela 3/10 (Acordo #1002)", origem: "Vencimento automático", valor: 9750, data: "28/11/2024 - 05h00", saldoAnterior: 111200 },
+                        { tipo: "debito", desc: "Aporte no Acordo #200", origem: "Reinvestimento da Parcela #5 do Acordo #100", valor: -30000, data: "25/11/2024 - 14h30", saldoAnterior: 141200 },
+                        { tipo: "debito", desc: "Saque solicitado via PIX", origem: "Solicitação manual", valor: -10000, data: "20/11/2024 - 10h15", saldoAnterior: 151200 },
+                        { tipo: "credito", desc: "Crédito da parcela 4/10 (Acordo #1001)", origem: "Vencimento automático", valor: 6500, data: "28/10/2024 - 05h00", saldoAnterior: 144700 },
                       ].map((tx, i) => {
                         const saldoResultante = tx.saldoAnterior + tx.valor;
                         return (
                           <tr key={i} className="border-b border-border hover:bg-muted/30">
                             <td className="py-4 px-4 text-sm">{tx.data}</td>
                             <td className="py-4 px-4">{tx.desc}</td>
+                            <td className="py-4 px-4 text-sm text-muted-foreground max-w-[200px]">
+                              {tx.origem}
+                            </td>
                             <td className={`py-4 px-4 text-right font-semibold ${
                               tx.tipo === "credito" ? "text-green-600" : "text-red-600"
                             }`}>

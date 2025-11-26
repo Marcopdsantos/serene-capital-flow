@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AcordoDetalhesModal } from "@/components/AcordoDetalhesModal";
 import { 
   Calendar, 
   Clock, 
@@ -94,6 +95,7 @@ const mockData = {
 const MesaLiquidacao = () => {
   const [mesSelecionado, setMesSelecionado] = useState("2024-11");
   const [expandedClientes, setExpandedClientes] = useState<string[]>([]);
+  const [modalAcordo, setModalAcordo] = useState<{ id: string; numeroAcordo: string; cliente: string; valorTotal: number } | null>(null);
   const navigate = useNavigate();
 
   const formatCurrency = (value: number) => {
@@ -307,27 +309,17 @@ const MesaLiquidacao = () => {
                                 className="flex items-center justify-between p-3 bg-background rounded-md border border-slate-200 dark:border-slate-800"
                               >
                                 <div className="flex items-center gap-4">
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <button className="text-sm font-mono text-primary hover:underline">
-                                        {parcela.acordoId}
-                                      </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80">
-                                      <div className="space-y-2">
-                                        <h4 className="font-medium text-slate-900 dark:text-slate-100">
-                                          Resumo do Acordo {parcela.acordoId}
-                                        </h4>
-                                        <Separator />
-                                        <div className="text-sm space-y-1 text-slate-600 dark:text-slate-400">
-                                          <p><span className="font-medium">Cliente:</span> {cliente.nome}</p>
-                                          <p><span className="font-medium">Referência:</span> {parcela.referencia}</p>
-                                          <p><span className="font-medium">Vencimento:</span> {parcela.vencimento}</p>
-                                          <p><span className="font-medium">Valor:</span> {formatCurrency(parcela.valor)}</p>
-                                        </div>
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
+                                  <button 
+                                    className="text-sm font-mono text-primary hover:underline"
+                                    onClick={() => setModalAcordo({
+                                      id: idx.toString(),
+                                      numeroAcordo: parcela.acordoId,
+                                      cliente: cliente.nome,
+                                      valorTotal: parcela.valor
+                                    })}
+                                  >
+                                    {parcela.acordoId}
+                                  </button>
                                   <Badge variant="outline" className="text-xs">
                                     Ref: {parcela.referencia}
                                   </Badge>
@@ -353,6 +345,12 @@ const MesaLiquidacao = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AcordoDetalhesModal
+        open={!!modalAcordo}
+        onOpenChange={(open) => !open && setModalAcordo(null)}
+        acordo={modalAcordo}
+      />
     </div>
   );
 };
