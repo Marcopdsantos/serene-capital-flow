@@ -1,4 +1,4 @@
-import { LayoutDashboard, Briefcase, Users, DollarSign, FileText, Archive } from "lucide-react";
+import { LayoutDashboard, Briefcase, Users, DollarSign, FileText, Archive, TrendingUp } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -33,6 +33,7 @@ export function AppSidebar() {
       title: "Operações",
       icon: Briefcase,
       items: [
+        { title: "Mesa de Liquidação", url: "/dashboard/operacoes/mesa-liquidacao" },
         { title: "Carteira de Acordos", url: "/dashboard/operacoes/carteira" },
         { title: "Central de Arquivos", url: "/dashboard/operacoes/arquivos" },
       ],
