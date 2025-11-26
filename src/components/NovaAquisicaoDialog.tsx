@@ -100,6 +100,8 @@ type AquisicaoFormData = z.infer<typeof aquisicaoSchema>;
 
 interface NovaAquisicaoDialogProps {
   onSuccess?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 type Step = "busca" | "dados" | "investimento" | "signatario" | "revisao";
@@ -118,9 +120,13 @@ const ESTADOS_BRASIL = [
   "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-export const NovaAquisicaoDialog = ({ onSuccess }: NovaAquisicaoDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const NovaAquisicaoDialog = ({ onSuccess, open: controlledOpen, onOpenChange: controlledOnOpenChange }: NovaAquisicaoDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Usar open controlado se fornecido, caso contrário usar estado interno
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
   const [currentStep, setCurrentStep] = useState<Step>("busca");
   const [searchTerm, setSearchTerm] = useState("");
   
