@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, TrendingUp, Building2, Eye } from "lucide-react";
+import { Search, Eye, Users, Briefcase, TrendingUp } from "lucide-react";
 import { AcordoDetalhesModal } from "./AcordoDetalhesModal";
 
 interface AcordoDetalhado {
@@ -74,13 +74,14 @@ export const AcordosDetalhadosTab = () => {
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [modalAcordo, setModalAcordo] = useState<{ id: string; numeroAcordo: string; cliente: string; valorTotal: number } | null>(null);
 
-  const totalPixCheque = acordos
-    .filter(a => a.origemPagamento === "PIX/Cheque")
-    .reduce((sum, a) => sum + parseFloat(a.valorTotal.replace(/[^\d,]/g, "").replace(",", ".")), 0);
-
-  const totalSaldoInterno = acordos
-    .filter(a => a.origemPagamento === "Saldo Interno")
-    .reduce((sum, a) => sum + parseFloat(a.valorTotal.replace(/[^\d,]/g, "").replace(",", ".")), 0);
+  // KPIs de Carteira
+  const acordosAtivos = acordos.filter(a => a.status === "Em dia");
+  const clientesAtivos = new Set(acordosAtivos.map(a => a.cliente)).size;
+  const acordosAtivosTotal = acordosAtivos.length;
+  const totalInvestidoAtivo = acordosAtivos.reduce(
+    (sum, a) => sum + parseFloat(a.valorTotal.replace(/[^\d,]/g, "").replace(",", ".")), 
+    0
+  );
 
   const acordosFiltrados = acordos.filter(acordo => {
     const matchBusca = acordo.cliente.toLowerCase().includes(busca.toLowerCase()) ||
@@ -94,30 +95,53 @@ export const AcordosDetalhadosTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Cards de Origem de Pagamento */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-border/50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">💸 Origem: PIX/Cheque</p>
-              <p className="text-3xl font-sans numeric-value">
-                {totalPixCheque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-              </p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-success" />
-          </div>
+      {/* KPIs de Carteira */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="hover:shadow-md transition-all">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Users className="h-4 w-4" strokeWidth={1.5} />
+              Clientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientesAtivos}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Com pelo menos um acordo ativo
+            </p>
+          </CardContent>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-border/50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">🏦 Origem: Saldo Interno</p>
-              <p className="text-3xl font-sans numeric-value">
-                {totalSaldoInterno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-              </p>
+        <Card className="hover:shadow-md transition-all">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Briefcase className="h-4 w-4" strokeWidth={1.5} />
+              Acordos Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{acordosAtivosTotal}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Contratos em andamento
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-all">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" strokeWidth={1.5} />
+              Total Investido (Ativo)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {totalInvestidoAtivo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </div>
-            <Building2 className="h-8 w-8 text-accent" />
-          </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Valor sob gestão
+            </p>
+          </CardContent>
         </Card>
       </div>
 

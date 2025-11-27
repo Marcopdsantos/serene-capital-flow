@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrendingUp, Clock, Wallet, CalendarDays, DollarSign, CreditCard } from "lucide-react";
+import { TrendingUp, Wallet, CalendarDays, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NovaAquisicaoDialog } from "@/components/NovaAquisicaoDialog";
 import { FilaAquisicoesTab } from "@/components/FilaAquisicoesTab";
@@ -50,16 +50,10 @@ const PainelGeral = () => {
 
   const aquisicoesMes = aquisicoesData.filter(aq => aq.mesRef === mesSelecionado);
   
-  const acordosDoMes = aquisicoesMes.reduce((acc, aq) => acc + aq.valorAporte, 0);
-  const pagamentosPendentes = aquisicoesMes
-    .filter(aq => aq.status !== "ativo")
-    .reduce((acc, aq) => acc + aq.valorAporte, 0);
-  const pagamentoLiquido = aquisicoesMes
-    .filter(aq => aq.status === "ativo")
-    .reduce((acc, aq) => acc + aq.pixCheque, 0);
-  const compensacaoCreditos = aquisicoesMes
-    .filter(aq => aq.status === "ativo")
-    .reduce((acc, aq) => acc + aq.saldoInterno, 0);
+  // KPIs de Performance Comercial
+  const volumeTotalVendido = aquisicoesMes.reduce((acc, aq) => acc + aq.valorAporte, 0);
+  const contratosFechados = aquisicoesMes.length;
+  const clientesAtivos = new Set(aquisicoesMes.map(aq => aq.id)).size; // Usando id como proxy para cliente único
 
   const getMesLabel = (mesRef: string) => {
     const [ano, mes] = mesRef.split("-");
@@ -100,32 +94,19 @@ const PainelGeral = () => {
         </CardContent>
       </Card>
 
-      {/* KPIs Principais */}
+      {/* KPIs de Performance Comercial */}
       <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
         <Card className="hover:shadow-md transition-all">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Wallet className="h-4 w-4" strokeWidth={2} />
-              Total em Caixa Atual
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 1.245.000</div>
-            <p className="text-xs text-muted-foreground mt-1">Saldo global disponível</p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-all">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4" strokeWidth={2} />
-              Acordos do Mês
+              Volume Total Vendido
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {acordosDoMes.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">R$ {volumeTotalVendido.toLocaleString('pt-BR')}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Aportes iniciados em {getMesLabel(mesSelecionado)}
+              Soma dos aportes em {getMesLabel(mesSelecionado)}
             </p>
           </CardContent>
         </Card>
@@ -133,47 +114,31 @@ const PainelGeral = () => {
         <Card className="hover:shadow-md transition-all">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Clock className="h-4 w-4" strokeWidth={2} />
-              Pagamentos Pendentes
+              <DollarSign className="h-4 w-4" strokeWidth={2} />
+              Contratos Fechados
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {pagamentosPendentes.toLocaleString('pt-BR')}</div>
-            <p className="text-xs text-muted-foreground mt-1">Não conciliados ainda</p>
+            <div className="text-2xl font-bold">{contratosFechados}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Novos acordos do mês
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-all">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Wallet className="h-4 w-4" strokeWidth={2} />
+              Clientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientesAtivos}</div>
+            <p className="text-xs text-muted-foreground mt-1">Clientes únicos no mês</p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Origem dos Pagamentos */}
-      <Card className="animate-fade-in hover:shadow-md transition-all">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <DollarSign className="h-4 w-4" strokeWidth={2} />
-            Origem dos Pagamentos ({getMesLabel(mesSelecionado)})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-muted rounded-lg p-4 border">
-              <div className="flex items-center gap-2 mb-2">
-                <CreditCard className="h-4 w-4 text-accent" strokeWidth={2} />
-                <span className="text-xs font-medium text-muted-foreground">Pagamento Líquido</span>
-              </div>
-              <div className="text-xl font-bold">R$ {pagamentoLiquido.toLocaleString('pt-BR')}</div>
-              <p className="text-xs text-muted-foreground mt-1">PIX, Cheque, Transferência</p>
-            </div>
-
-            <div className="bg-muted rounded-lg p-4 border">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="h-4 w-4 text-accent" strokeWidth={2} />
-                <span className="text-xs font-medium text-muted-foreground">Compensação de Créditos</span>
-              </div>
-              <div className="text-xl font-bold">R$ {compensacaoCreditos.toLocaleString('pt-BR')}</div>
-              <p className="text-xs text-muted-foreground mt-1">Saldo Interno utilizado</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Fila de Aquisições */}
       <FilaAquisicoesTab mesSelecionado={mesSelecionado} />
