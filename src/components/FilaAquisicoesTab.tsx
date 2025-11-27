@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown, FileText, Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ClipboardList, CheckCircle, Clock, Paperclip, Eye, Mail, ShieldCheck, Edit2, ArrowUpDown, FileText, Upload, FileStack } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { FichaCadastralModal } from "./FichaCadastralModal";
 import { DefinirSignatarioModal } from "./DefinirSignatarioModal";
@@ -182,6 +183,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
     cliente: typeof clientesData[keyof typeof clientesData] | null;
   }>({ open: false, cliente: null });
   const [ordenacaoComprador, setOrdenacaoComprador] = useState<"asc" | "desc" | null>(null);
+  const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
   
   // Estados para modais de ação
   const [signatarioModalOpen, setSignatarioModalOpen] = useState(false);
@@ -287,6 +289,31 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
     }
   };
 
+  const toggleSelecao = (id: string) => {
+    setSelecionadas(prev => {
+      const novaSelecao = new Set(prev);
+      if (novaSelecao.has(id)) {
+        novaSelecao.delete(id);
+      } else {
+        novaSelecao.add(id);
+      }
+      return novaSelecao;
+    });
+  };
+
+  // Verifica se existem 2+ aquisições do mesmo cliente selecionadas
+  const aquisicoesSelecionadas = aquisicoesFiltradas.filter(aq => selecionadas.has(aq.id));
+  const clientesSelecionados = aquisicoesSelecionadas.map(aq => aq.comprador);
+  const temMesmoCliente = clientesSelecionados.length >= 2 && new Set(clientesSelecionados).size === 1;
+
+  const handleGerarContratoUnificado = () => {
+    toast({
+      title: "📄 Contrato Unificado",
+      description: `Gerando contrato único para ${aquisicoesSelecionadas.length} aquisições de ${clientesSelecionados[0]}`,
+    });
+    console.log("Aquisições selecionadas:", aquisicoesSelecionadas);
+  };
+
   return (
     <>
       <Card className="animate-fade-in">
@@ -346,6 +373,18 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                  <TableHead className="font-semibold text-slate-700 dark:text-slate-300 w-12">
+                    <Checkbox 
+                      checked={selecionadas.size === aquisicoesFiltradas.length && aquisicoesFiltradas.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelecionadas(new Set(aquisicoesFiltradas.map(aq => aq.id)));
+                        } else {
+                          setSelecionadas(new Set());
+                        }
+                      }}
+                    />
+                  </TableHead>
                   <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                     <button 
                       onClick={toggleOrdenacaoComprador}
@@ -382,10 +421,34 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                         : config.acao;
 
                     return (
-                      <TableRow key={aquisicao.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                      <TableRow 
+                        key={aquisicao.id} 
+                        className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          // Não abrir modal se clicar no checkbox ou botão de ação
+                          if ((e.target as HTMLElement).closest('input[type="checkbox"]') || 
+                              (e.target as HTMLElement).closest('button')) {
+                            return;
+                          }
+                          setAquisicaoSelecionada(aquisicao);
+                          toast({
+                            title: "Edição",
+                            description: `Editando acordo de ${aquisicao.comprador}`,
+                          });
+                        }}
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Checkbox 
+                            checked={selecionadas.has(aquisicao.id)}
+                            onCheckedChange={() => toggleSelecao(aquisicao.id)}
+                          />
+                        </TableCell>
                         <TableCell>
                           <button
-                            onClick={() => setModalCliente({ open: true, cliente: clientesData[aquisicao.comprador as keyof typeof clientesData] })}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setModalCliente({ open: true, cliente: clientesData[aquisicao.comprador as keyof typeof clientesData] });
+                            }}
                             className="font-medium text-blue-600 dark:text-blue-400 hover:underline transition-colors text-left"
                           >
                             {aquisicao.comprador} <span className="text-xs text-slate-500 dark:text-slate-400">({formatarData(aquisicao.dataInicio)})</span>
@@ -442,11 +505,14 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <Button
                             size="sm"
                             variant={aquisicao.status === "ativo" ? "outline" : "default"}
-                            onClick={() => handleAcao(aquisicao)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAcao(aquisicao);
+                            }}
                             className={`whitespace-nowrap h-9 px-4 w-[200px] text-xs ${
                               aquisicao.status === "ativo" 
                                 ? "border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent" 
@@ -466,6 +532,20 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
           </div>
         </CardContent>
       </Card>
+
+      {/* Botão Flutuante para Contrato Unificado */}
+      {temMesmoCliente && (
+        <div className="fixed bottom-8 right-8 z-50 animate-fade-in">
+          <Button 
+            size="lg"
+            onClick={handleGerarContratoUnificado}
+            className="shadow-lg hover:shadow-xl transition-all"
+          >
+            <FileStack className="h-5 w-5 mr-2" strokeWidth={2} />
+            Gerar Contrato Unificado ({aquisicoesSelecionadas.length})
+          </Button>
+        </div>
+      )}
 
       <FichaCadastralModal
         open={modalCliente.open}
