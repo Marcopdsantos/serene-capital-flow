@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { FichaCadastralModal } from "./FichaCadastralModal";
 import { DefinirSignatarioModal } from "./DefinirSignatarioModal";
 import { ComprovanteModal } from "./ComprovanteModal";
+import { EditarAcordoModal } from "./EditarAcordoModal";
 
 type StatusType = "pendente_contrato" | "aguardando_comprovante" | "pendente_conciliacao" | "ativo";
 type TipoPagamento = "pix" | "saldo_interno" | "misto";
@@ -184,6 +185,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
   }>({ open: false, cliente: null });
   const [ordenacaoComprador, setOrdenacaoComprador] = useState<"asc" | "desc" | null>(null);
   const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
+  const [editarModalOpen, setEditarModalOpen] = useState(false);
   
   // Estados para modais de ação
   const [signatarioModalOpen, setSignatarioModalOpen] = useState(false);
@@ -305,6 +307,14 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
   const aquisicoesSelecionadas = aquisicoesFiltradas.filter(aq => selecionadas.has(aq.id));
   const clientesSelecionados = aquisicoesSelecionadas.map(aq => aq.comprador);
   const temMesmoCliente = clientesSelecionados.length >= 2 && new Set(clientesSelecionados).size === 1;
+
+  console.log("Debug Contrato Unificado:", {
+    totalSelecionadas: selecionadas.size,
+    aquisicoesSelecionadas: aquisicoesSelecionadas.length,
+    clientesSelecionados,
+    clientesUnicos: new Set(clientesSelecionados).size,
+    temMesmoCliente
+  });
 
   const handleGerarContratoUnificado = () => {
     toast({
@@ -431,10 +441,7 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
                             return;
                           }
                           setAquisicaoSelecionada(aquisicao);
-                          toast({
-                            title: "Edição",
-                            description: `Editando acordo de ${aquisicao.comprador}`,
-                          });
+                          setEditarModalOpen(true);
                         }}
                       >
                         <TableCell onClick={(e) => e.stopPropagation()}>
@@ -573,6 +580,21 @@ export const FilaAquisicoesTab = ({ mesSelecionado }: FilaAquisicoesTabProps) =>
           }}
         />
       )}
+
+      {/* Modal de Edição */}
+      <EditarAcordoModal
+        open={editarModalOpen}
+        onOpenChange={setEditarModalOpen}
+        acordo={aquisicaoSelecionada ? {
+          id: aquisicaoSelecionada.id,
+          comprador: aquisicaoSelecionada.comprador,
+          aporte: aquisicaoSelecionada.aporte,
+          totalReceber: aquisicaoSelecionada.totalReceber,
+          detalhePagamento: aquisicaoSelecionada.detalhePagamento,
+          notas: aquisicaoSelecionada.notas,
+          mesReferencia: aquisicaoSelecionada.mesReferencia,
+        } : null}
+      />
     </>
   );
 };
