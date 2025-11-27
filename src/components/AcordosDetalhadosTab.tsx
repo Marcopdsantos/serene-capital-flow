@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Eye, Users, Briefcase, TrendingUp } from "lucide-react";
 import { AcordoDetalhesModal } from "./AcordoDetalhesModal";
+import { EditarAcordoModal } from "./EditarAcordoModal";
 
 interface AcordoDetalhado {
   id: string;
@@ -73,6 +74,8 @@ export const AcordosDetalhadosTab = () => {
   const [filtroMes, setFiltroMes] = useState<string>("todos");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [modalAcordo, setModalAcordo] = useState<{ id: string; numeroAcordo: string; cliente: string; valorTotal: number } | null>(null);
+  const [editarModalOpen, setEditarModalOpen] = useState(false);
+  const [acordoParaEditar, setAcordoParaEditar] = useState<AcordoDetalhado | null>(null);
 
   // KPIs de Carteira
   const acordosAtivos = acordos.filter(a => a.status === "Em dia");
@@ -207,7 +210,18 @@ export const AcordosDetalhadosTab = () => {
             </thead>
             <tbody>
               {acordosFiltrados.map((acordo) => (
-                <tr key={acordo.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                <tr 
+                  key={acordo.id} 
+                  className="border-b border-border hover:bg-muted/30 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    // Não abrir modal se clicar em botão
+                    if ((e.target as HTMLElement).closest('button')) {
+                      return;
+                    }
+                    setAcordoParaEditar(acordo);
+                    setEditarModalOpen(true);
+                  }}
+                >
                   <td className="py-4 px-4">
                     <p className="font-medium">{acordo.cliente}</p>
                   </td>
@@ -251,12 +265,15 @@ export const AcordosDetalhadosTab = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setModalAcordo({
-                        id: acordo.id,
-                        numeroAcordo: acordo.acordo,
-                        cliente: acordo.cliente,
-                        valorTotal: parseFloat(acordo.valorTotal.replace(/[^\d,]/g, "").replace(",", "."))
-                      })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModalAcordo({
+                          id: acordo.id,
+                          numeroAcordo: acordo.acordo,
+                          cliente: acordo.cliente,
+                          valorTotal: parseFloat(acordo.valorTotal.replace(/[^\d,]/g, "").replace(",", "."))
+                        });
+                      }}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Ver Detalhes
@@ -279,6 +296,20 @@ export const AcordosDetalhadosTab = () => {
         open={!!modalAcordo}
         onOpenChange={(open) => !open && setModalAcordo(null)}
         acordo={modalAcordo}
+      />
+
+      <EditarAcordoModal
+        open={editarModalOpen}
+        onOpenChange={setEditarModalOpen}
+        acordo={acordoParaEditar ? {
+          id: acordoParaEditar.id,
+          comprador: acordoParaEditar.cliente,
+          aporte: acordoParaEditar.valorTotal,
+          totalReceber: acordoParaEditar.valorTotal,
+          detalhePagamento: acordoParaEditar.origemPagamento,
+          notas: acordoParaEditar.observacoes,
+          mesReferencia: acordoParaEditar.mesRef,
+        } : null}
       />
     </div>
   );
