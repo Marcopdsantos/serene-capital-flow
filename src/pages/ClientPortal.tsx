@@ -802,13 +802,18 @@ const ClientPortal = () => {
                         <p className="text-sm text-slate-700 dark:text-slate-300 break-all">{perfilCliente.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    <a 
+                      href={`https://wa.me/55${perfilCliente.telefone.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 -mx-2 px-2 py-1 rounded-md transition-colors"
+                    >
                       <Phone className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
                       <div>
-                        <p className="text-xs text-primary font-medium mb-0.5">Telefone</p>
+                        <p className="text-xs text-primary font-medium mb-0.5">Telefone (WhatsApp)</p>
                         <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.telefone}</p>
                       </div>
-                    </div>
+                    </a>
                   </div>
                 </div>
 
@@ -880,8 +885,19 @@ const ClientPortal = () => {
       {/* Footer */}
       <footer className="border-t border-slate-200 dark:border-slate-700 mt-8 sm:mt-12">
         <div className="max-w-editorial mx-auto px-4 sm:px-8 py-6 sm:py-8">
-          <p className="text-center text-xs sm:text-sm text-muted-foreground">
-            Transparência é o nosso ativo mais valioso.
+          <p className="text-center text-xs sm:text-sm text-muted-foreground mb-2">
+            Investindo em operações de crédito com segurança jurídica e rentabilidade
+          </p>
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground/60">
+            Desenvolvido por{" "}
+            <a 
+              href="https://instagram.com/space.inteligencia" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              Space Inteligência
+            </a>
           </p>
         </div>
       </footer>
