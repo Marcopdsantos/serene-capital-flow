@@ -367,79 +367,77 @@ const ClientPortal = () => {
               </p>
             </div>
 
-            {/* KPIs Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-slide-up">
-              {/* Total Investido (Ativo) */}
-              <Card 
-                className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-primary hover:shadow-md transition-all duration-200 cursor-pointer"
-                onClick={() => handleKpiClick("total_investido")}
-              >
-                <CardHeader className="pb-3 sm:pb-4">
-                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                    Total Investido (Ativo)
-                  </CardDescription>
-                  <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-primary tracking-tight">
-                    R$ {totalInvestido.toLocaleString("pt-BR")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Capital trabalhando em {acordosAtivos.length} acordos ativos.
-                  </p>
-                </CardContent>
-              </Card>
+            {/* KPIs Cards - Wrapper sutil para unificar visualmente */}
+            <div className="bg-slate-50/30 dark:bg-slate-800/20 rounded-xl p-3 sm:p-4 -mx-1 animate-slide-up">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {/* Total Investido (Ativo) - Tom mais forte */}
+                <Card 
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-600 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  onClick={() => handleKpiClick("total_investido")}
+                >
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-slate-600" strokeWidth={1.5} />
+                      Total Investido (Ativo)
+                    </CardDescription>
+                    <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
+                      R$ {totalInvestido.toLocaleString("pt-BR")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Capital trabalhando em {acordosAtivos.length} acordos ativos.
+                    </p>
+                  </CardContent>
+                </Card>
 
-              {/* Disponível para Destinação */}
-              <Card 
-                className={`shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 hover:shadow-md transition-all duration-200 cursor-pointer ${
-                  aguardandoDestinacao > 0 ? "border-l-blue-500" : "border-l-slate-300"
-                }`}
-                onClick={() => handleKpiClick("aguardando_destinacao")}
-              >
-                <CardHeader className="pb-3 sm:pb-4">
-                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-600" strokeWidth={1.5} />
-                    Disponível para Destinação
-                    {aguardandoDestinacao > 0 && (
-                      <AlertCircle className="h-4 w-4 text-blue-500" strokeWidth={1.5} />
-                    )}
-                  </CardDescription>
-                  <CardTitle className={`text-2xl sm:text-3xl font-mono mt-2 tracking-tight ${
-                    aguardandoDestinacao > 0 ? "text-blue-600" : "text-slate-600 dark:text-slate-400"
-                  }`}>
-                    R$ {aguardandoDestinacao.toLocaleString("pt-BR")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    {aguardandoDestinacao > 0
-                      ? "Parcelas vencidas aguardando ação."
-                      : "Nenhuma parcela aguardando destinação."}
-                  </p>
-                </CardContent>
-              </Card>
+                {/* Disponível para Destinação - Tom intermediário */}
+                <Card 
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  onClick={() => handleKpiClick("aguardando_destinacao")}
+                >
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
+                      Disponível para Destinação
+                      {aguardandoDestinacao > 0 && (
+                        <AlertCircle className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
+                      )}
+                    </CardDescription>
+                    <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
+                      R$ {aguardandoDestinacao.toLocaleString("pt-BR")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {aguardandoDestinacao > 0
+                        ? "Parcelas vencidas aguardando ação."
+                        : "Nenhuma parcela aguardando destinação."}
+                    </p>
+                  </CardContent>
+                </Card>
 
-              {/* Próximo Vencimento */}
-              <Card 
-                className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md transition-all duration-200 cursor-pointer sm:col-span-2 lg:col-span-1"
-                onClick={() => handleKpiClick("proximo_vencimento")}
-              >
-                <CardHeader className="pb-3 sm:pb-4">
-                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
-                    Próximo Vencimento {proximoVencimento.dataFormatada && `(${proximoVencimento.dataFormatada})`}
-                  </CardDescription>
-                  <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
-                    R$ {proximoVencimento.valor.toLocaleString("pt-BR")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    {proximoVencimento.itens.length} parcela(s) prevista(s) para o próximo ciclo.
-                  </p>
-                </CardContent>
-              </Card>
+                {/* Próximo Vencimento - Tom mais suave */}
+                <Card 
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer sm:col-span-2 lg:col-span-1"
+                  onClick={() => handleKpiClick("proximo_vencimento")}
+                >
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
+                      <CalendarClock className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
+                      Próximo Vencimento {proximoVencimento.dataFormatada && `(${proximoVencimento.dataFormatada})`}
+                    </CardDescription>
+                    <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
+                      R$ {proximoVencimento.valor.toLocaleString("pt-BR")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {proximoVencimento.itens.length} parcela(s) prevista(s) para o próximo ciclo.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
 
