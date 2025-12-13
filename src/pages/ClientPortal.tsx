@@ -320,15 +320,20 @@ const ClientPortal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/30 to-white dark:from-slate-900 dark:via-slate-800/30 dark:to-slate-900">
       {/* Header */}
-      <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
+      <header className="border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm">
         <div className="max-w-editorial mx-auto px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between">
           <img src={logo} alt="Acordo Capital" className="h-6 sm:h-8" />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-xs sm:text-sm text-muted-foreground">Bem-vindo,</p>
               <p className="font-semibold text-sm sm:text-base">{perfilCliente.nome.split(" ")[0]}</p>
+            </div>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center border border-slate-200 dark:border-slate-600">
+              <span className="text-slate-600 dark:text-slate-300 font-semibold text-sm">
+                {perfilCliente.nome.split(" ").map(n => n[0]).slice(0, 2).join("")}
+              </span>
             </div>
           </div>
         </div>
@@ -368,11 +373,11 @@ const ClientPortal = () => {
             </div>
 
             {/* KPIs Cards - Wrapper sutil para unificar visualmente */}
-            <div className="bg-slate-50/30 dark:bg-slate-800/20 rounded-xl p-3 sm:p-4 -mx-1 animate-slide-up">
+            <div className="bg-slate-50/30 dark:bg-slate-800/20 rounded-xl p-3 sm:p-4 -mx-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Total Investido (Ativo) - Tom mais forte */}
                 <Card 
-                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-600 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-600 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in"
                   onClick={() => handleKpiClick("total_investido")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
@@ -388,12 +393,16 @@ const ClientPortal = () => {
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       Capital trabalhando em {acordosAtivos.length} acordos ativos.
                     </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
+                      <Info className="h-3 w-3" /> Clique para detalhes
+                    </p>
                   </CardContent>
                 </Card>
 
                 {/* Disponível para Destinação - Tom intermediário */}
                 <Card 
-                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in [animation-delay:100ms]"
+                  style={{ animationFillMode: 'backwards' }}
                   onClick={() => handleKpiClick("aguardando_destinacao")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
@@ -414,12 +423,16 @@ const ClientPortal = () => {
                         ? "Parcelas vencidas aguardando ação."
                         : "Nenhuma parcela aguardando destinação."}
                     </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
+                      <Info className="h-3 w-3" /> Clique para detalhes
+                    </p>
                   </CardContent>
                 </Card>
 
                 {/* Próximo Vencimento - Tom mais suave */}
                 <Card 
-                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer sm:col-span-2 lg:col-span-1"
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-300 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer sm:col-span-2 lg:col-span-1 animate-fade-in [animation-delay:200ms]"
+                  style={{ animationFillMode: 'backwards' }}
                   onClick={() => handleKpiClick("proximo_vencimento")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
@@ -434,6 +447,9 @@ const ClientPortal = () => {
                   <CardContent>
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       {proximoVencimento.itens.length} parcela(s) prevista(s) para o próximo ciclo.
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
+                      <Info className="h-3 w-3" /> Clique para detalhes
                     </p>
                   </CardContent>
                 </Card>
@@ -881,8 +897,9 @@ const ClientPortal = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-700 mt-8 sm:mt-12">
+      <footer className="border-t border-slate-200 dark:border-slate-700 mt-8 sm:mt-12 bg-white/50 dark:bg-slate-900/50">
         <div className="max-w-editorial mx-auto px-4 sm:px-8 py-6 sm:py-8">
+          <img src={logo} alt="Acordo Capital" className="h-5 mx-auto mb-4 opacity-50" />
           <p className="text-center text-xs sm:text-sm text-muted-foreground mb-2">
             Investindo em operações de crédito com segurança jurídica e rentabilidade
           </p>
