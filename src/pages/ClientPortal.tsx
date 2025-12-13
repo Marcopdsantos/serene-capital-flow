@@ -14,6 +14,16 @@ import {
   ArrowDownLeft,
   Paperclip,
   Info,
+  User,
+  CreditCard,
+  Globe,
+  Heart,
+  Briefcase as BriefcaseIcon,
+  Mail,
+  Phone,
+  MapPin,
+  Building2,
+  QrCode,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,17 +134,19 @@ const mockMovimentacoes = [
 const perfilCliente = {
   nome: "João Silva Santos",
   cpf: "123.456.789-00",
-  email: "joao.silva@email.com",
-  telefone: "(11) 99999-9999",
+  nacionalidade: "Brasileiro",
+  estadoCivil: "Casado",
   profissao: "Empresário",
+  email: "joao.silva@email.com",
+  telefone: "(11) 98765-4321",
   endereco: {
-    rua: "Av. Paulista",
-    numero: "1000",
-    complemento: "Sala 1501",
-    bairro: "Bela Vista",
+    rua: "Rua das Flores",
+    numero: "123",
+    complemento: "Apto 45",
+    bairro: "Centro",
     cidade: "São Paulo",
     estado: "SP",
-    cep: "01310-100",
+    cep: "01234-567",
   },
   banco: {
     nome: "Itaú Unibanco",
@@ -715,143 +727,150 @@ const ClientPortal = () => {
                 Meu Perfil
               </h2>
               <p className="text-sm text-muted-foreground">
-                Dados cadastrais registrados para fins contratuais.
+                Seus dados cadastrais conforme contrato
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Dados Pessoais */}
-              <Card className="shadow-sm border border-slate-100 dark:border-slate-700">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
-                    Dados Pessoais
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <div className="col-span-2">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Nome Completo
-                      </p>
-                      <p className="font-medium text-sm sm:text-base">{perfilCliente.nome}</p>
+            {/* Card Principal com Avatar */}
+            <Card className="shadow-sm border border-slate-100 dark:border-slate-700">
+              <CardContent className="pt-6">
+                {/* Header com Avatar */}
+                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100 dark:border-slate-700">
+                  <div className="h-14 w-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <User className="h-7 w-7 text-slate-400" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{perfilCliente.nome}</h3>
+                    <p className="text-sm text-primary">Investidor</p>
+                  </div>
+                </div>
+
+                {/* Dados Pessoais do Investidor */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    Dados Pessoais do Investidor
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="flex items-start gap-3">
+                      <User className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Nome Completo</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.nome}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        CPF
-                      </p>
-                      <p className="font-mono text-sm">{perfilCliente.cpf}</p>
+                    <div className="flex items-start gap-3">
+                      <CreditCard className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">CPF</p>
+                        <p className="text-sm font-mono text-slate-700 dark:text-slate-300">{perfilCliente.cpf}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Profissão
-                      </p>
-                      <p className="font-medium text-sm">{perfilCliente.profissao}</p>
+                    <div className="flex items-start gap-3">
+                      <Globe className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Nacionalidade</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.nacionalidade}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        E-mail
-                      </p>
-                      <p className="font-medium text-sm break-all">{perfilCliente.email}</p>
+                    <div className="flex items-start gap-3">
+                      <Heart className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Estado Civil</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.estadoCivil}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Telefone
-                      </p>
-                      <p className="font-medium text-sm">{perfilCliente.telefone}</p>
+                    <div className="flex items-start gap-3">
+                      <BriefcaseIcon className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Profissão</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.profissao}</p>
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Endereço */}
-              <Card className="shadow-sm border border-slate-100 dark:border-slate-700">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
-                    Endereço
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <div className="col-span-2">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Logradouro
-                      </p>
-                      <p className="font-medium text-sm">
+                {/* Contato */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    Contato
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                      <Mail className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">E-mail</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300 break-all">{perfilCliente.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Phone className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Telefone</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.telefone}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Endereço Completo */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    Endereço Completo
+                  </h4>
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+                    <div>
+                      <p className="text-xs text-primary font-medium mb-0.5">Endereço</p>
+                      <p className="text-sm text-slate-700 dark:text-slate-300">
                         {perfilCliente.endereco.rua}, {perfilCliente.endereco.numero}
                         {perfilCliente.endereco.complemento && ` - ${perfilCliente.endereco.complemento}`}
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Bairro
+                      <p className="text-sm text-slate-700 dark:text-slate-300">
+                        {perfilCliente.endereco.bairro} - {perfilCliente.endereco.cidade}/{perfilCliente.endereco.estado}
                       </p>
-                      <p className="font-medium text-sm">{perfilCliente.endereco.bairro}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        CEP
+                      <p className="text-sm text-slate-700 dark:text-slate-300">
+                        CEP: {perfilCliente.endereco.cep}
                       </p>
-                      <p className="font-mono text-sm">{perfilCliente.endereco.cep}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Cidade
-                      </p>
-                      <p className="font-medium text-sm">{perfilCliente.endereco.cidade}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Estado
-                      </p>
-                      <p className="font-medium text-sm">{perfilCliente.endereco.estado}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Dados Bancários */}
-              <Card className="shadow-sm border border-slate-100 dark:border-slate-700 md:col-span-2">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
-                    Dados Bancários
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Banco
-                      </p>
-                      <p className="font-medium text-sm">{perfilCliente.banco.nome}</p>
+                {/* Dados Bancários */}
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    Dados Bancários (para recebimento)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                      <Building2 className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Banco</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{perfilCliente.banco.nome}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Ag: {perfilCliente.banco.agencia} | Conta: {perfilCliente.banco.conta}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Agência
-                      </p>
-                      <p className="font-mono text-sm">{perfilCliente.banco.agencia}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Conta
-                      </p>
-                      <p className="font-mono text-sm">{perfilCliente.banco.conta}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Chave PIX Padrão
-                      </p>
-                      <p className="font-medium text-sm break-all">{perfilCliente.banco.chavePix}</p>
+                    <div className="flex items-start gap-3">
+                      <QrCode className="h-4 w-4 text-slate-400 mt-0.5" strokeWidth={1.5} />
+                      <div>
+                        <p className="text-xs text-primary font-medium mb-0.5">Chave PIX</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300 break-all">{perfilCliente.banco.chavePix}</p>
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Nota de alteração */}
             <div className="flex items-start gap-3 p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                Para alterações cadastrais, entre em contato com seu gestor.
+                <span className="font-medium">Nota:</span> Para alterações cadastrais, entre em contato com seu gestor através do e-mail{" "}
+                <a href="mailto:acordocapital@gmail.com" className="text-primary hover:underline">acordocapital@gmail.com</a>
+                {" "}ou WhatsApp{" "}
+                <a href="https://wa.me/5519999181307" className="text-primary hover:underline">(19) 99918-1307</a>.
               </p>
             </div>
           </TabsContent>
