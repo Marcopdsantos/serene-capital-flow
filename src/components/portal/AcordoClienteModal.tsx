@@ -47,7 +47,7 @@ const statusConfig = {
   reinvestida: {
     label: "Reinvestida",
     icon: RefreshCw,
-    className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
   },
 };
 

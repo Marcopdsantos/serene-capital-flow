@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   TrendingUp,
   Clock,
@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 import { AcordoClienteModal, ParcelaCliente } from "@/components/portal/AcordoClienteModal";
+import { KpiDetalheModal } from "@/components/portal/KpiDetalheModal";
 
 // Mock data para acordos com estrutura expandida
 const mockAcordos = [
@@ -143,45 +144,127 @@ const perfilCliente = {
   },
 };
 
+// Helper para parsear data BR para Date
+const parseDateBR = (dateStr: string) => {
+  const [day, month, year] = dateStr.split("/").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+// Helper para formatar data
+const formatDateBR = (date: Date) => {
+  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+};
+
 const ClientPortal = () => {
   const [activeTab, setActiveTab] = useState("visao-geral");
   const [acordoSelecionado, setAcordoSelecionado] = useState<typeof mockAcordos[0] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [kpiModalOpen, setKpiModalOpen] = useState(false);
+  const [kpiModalTipo, setKpiModalTipo] = useState<"total_investido" | "aguardando_destinacao" | "proximo_vencimento">("total_investido");
 
-  // Cálculos para KPIs
-  const totalInvestido = mockAcordos
-    .filter((a) => a.status === "Ativo")
-    .reduce((sum, a) => sum + a.valorOriginal, 0);
+  const hoje = new Date();
 
-  const aguardandoDestinacao = mockAcordos.reduce((sum, acordo) => {
-    const parcelasAguardando = acordo.parcelas.filter(
-      (p) => p.status === "pendente" && new Date(p.dataVencimento.split("/").reverse().join("-")) < new Date()
-    );
-    return sum + parcelasAguardando.reduce((s, p) => s + p.valor, 0);
-  }, 0);
+  // Cálculos para KPIs com itens detalhados
+  const acordosAtivos = mockAcordos.filter((a) => a.status === "Ativo");
+  const totalInvestido = acordosAtivos.reduce((sum, a) => sum + a.valorOriginal, 0);
+  const totalInvestidoItens = acordosAtivos.map((a) => ({
+    acordoId: a.id,
+    descricao: `Início: ${a.dataInicio} • ${a.origemRecurso}`,
+    valor: a.valorOriginal,
+  }));
 
-  const projecaoProximoDia28 = mockAcordos.reduce((sum, acordo) => {
-    const parcelasProximas = acordo.parcelas.filter(
-      (p) => (p.status === "pendente" || p.status === "reservada") && p.dataVencimento.includes("/01/2025")
-    );
-    return sum + parcelasProximas.reduce((s, p) => s + p.valor, 0);
-  }, 0);
+  // Parcelas vencidas aguardando destinação
+  const parcelasAguardando = useMemo(() => {
+    const itens: { acordoId: string; descricao: string; valor: number; parcela: ParcelaCliente }[] = [];
+    mockAcordos.forEach((acordo) => {
+      acordo.parcelas.forEach((p) => {
+        const dataVenc = parseDateBR(p.dataVencimento);
+        if ((p.status === "pendente" || p.status === "reservada") && dataVenc < hoje) {
+          itens.push({
+            acordoId: acordo.id,
+            descricao: `Parcela ${p.numero}/${acordo.total} • Venc: ${p.dataVencimento}`,
+            valor: p.valor,
+            parcela: p,
+          });
+        }
+      });
+    });
+    return itens;
+  }, []);
+
+  const aguardandoDestinacao = parcelasAguardando.reduce((sum, item) => sum + item.valor, 0);
+
+  // Próximo vencimento dinâmico
+  const proximoVencimento = useMemo(() => {
+    let proximaData: Date | null = null;
+    const parcelas: { acordoId: string; descricao: string; valor: number; data: Date }[] = [];
+
+    mockAcordos.forEach((acordo) => {
+      acordo.parcelas.forEach((p) => {
+        if (p.status === "pendente" || p.status === "reservada") {
+          const dataVenc = parseDateBR(p.dataVencimento);
+          if (dataVenc >= hoje) {
+            if (!proximaData || dataVenc < proximaData) {
+              proximaData = dataVenc;
+            }
+          }
+        }
+      });
+    });
+
+    if (proximaData) {
+      mockAcordos.forEach((acordo) => {
+        acordo.parcelas.forEach((p) => {
+          if (p.status === "pendente" || p.status === "reservada") {
+            const dataVenc = parseDateBR(p.dataVencimento);
+            if (dataVenc.getTime() === proximaData!.getTime()) {
+              parcelas.push({
+                acordoId: acordo.id,
+                descricao: `Parcela ${p.numero}/${acordo.total}`,
+                valor: p.valor,
+                data: dataVenc,
+              });
+            }
+          }
+        });
+      });
+    }
+
+    return {
+      data: proximaData,
+      dataFormatada: proximaData ? formatDateBR(proximaData) : null,
+      valor: parcelas.reduce((sum, p) => sum + p.valor, 0),
+      itens: parcelas,
+    };
+  }, []);
 
   const handleAcordoClick = (acordo: typeof mockAcordos[0]) => {
     setAcordoSelecionado(acordo);
     setModalOpen(true);
   };
 
+  const handleAcordoClickById = (acordoId: string) => {
+    const acordo = mockAcordos.find((a) => a.id === acordoId);
+    if (acordo) {
+      handleAcordoClick(acordo);
+    }
+  };
+
+  const handleKpiClick = (tipo: typeof kpiModalTipo) => {
+    setKpiModalTipo(tipo);
+    setKpiModalOpen(true);
+  };
+
   const eventoConfig = {
     saque: {
       label: "Saque",
       icon: ArrowUpRight,
-      className: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
+      className: "bg-slate-700 text-slate-100 dark:bg-slate-600 dark:text-slate-100",
     },
     renovacao: {
       label: "Renovação",
       icon: RefreshCw,
-      className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+      className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
     },
     credito: {
       label: "Crédito",
@@ -190,111 +273,158 @@ const ClientPortal = () => {
     },
   };
 
+  const getKpiModalData = () => {
+    switch (kpiModalTipo) {
+      case "total_investido":
+        return {
+          titulo: "Total Investido (Ativo)",
+          subtitulo: "Acordos com capital em operação",
+          valor: totalInvestido,
+          itens: totalInvestidoItens,
+        };
+      case "aguardando_destinacao":
+        return {
+          titulo: "Disponível para Destinação",
+          subtitulo: "Parcelas vencidas aguardando ação",
+          valor: aguardandoDestinacao,
+          itens: parcelasAguardando.map((p) => ({
+            acordoId: p.acordoId,
+            descricao: p.descricao,
+            valor: p.valor,
+          })),
+        };
+      case "proximo_vencimento":
+        return {
+          titulo: `Próximo Vencimento (${proximoVencimento.dataFormatada || "—"})`,
+          subtitulo: "Parcelas previstas para a próxima data",
+          valor: proximoVencimento.valor,
+          itens: proximoVencimento.itens.map((p) => ({
+            acordoId: p.acordoId,
+            descricao: p.descricao,
+            valor: p.valor,
+          })),
+        };
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="max-w-editorial mx-auto px-8 py-6 flex items-center justify-between">
-          <img src={logo} alt="Acordo Capital" className="h-8" />
+      <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
+        <div className="max-w-editorial mx-auto px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between">
+          <img src={logo} alt="Acordo Capital" className="h-6 sm:h-8" />
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Bem-vindo,</p>
-              <p className="font-semibold">{perfilCliente.nome.split(" ")[0]}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Bem-vindo,</p>
+              <p className="font-semibold text-sm sm:text-base">{perfilCliente.nome.split(" ")[0]}</p>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-editorial mx-auto px-8 py-12 space-y-8">
+      <div className="max-w-editorial mx-auto px-4 sm:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
         {/* Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
-            <TabsTrigger value="visao-geral" className="flex items-center gap-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
+          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto h-auto">
+            <TabsTrigger value="visao-geral" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-4">
               <Home className="h-4 w-4" strokeWidth={1.5} />
-              Visão Geral
+              <span className="text-[10px] sm:text-sm">Visão Geral</span>
             </TabsTrigger>
-            <TabsTrigger value="carteira" className="flex items-center gap-2">
+            <TabsTrigger value="carteira" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-4">
               <Briefcase className="h-4 w-4" strokeWidth={1.5} />
-              Carteira de Acordos
+              <span className="text-[10px] sm:text-sm">Carteira</span>
             </TabsTrigger>
-            <TabsTrigger value="historico" className="flex items-center gap-2">
+            <TabsTrigger value="historico" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-4">
               <ArrowLeftRight className="h-4 w-4" strokeWidth={1.5} />
-              Histórico
+              <span className="text-[10px] sm:text-sm">Histórico</span>
             </TabsTrigger>
-            <TabsTrigger value="perfil" className="flex items-center gap-2">
+            <TabsTrigger value="perfil" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-4">
               <UserCircle className="h-4 w-4" strokeWidth={1.5} />
-              Meu Perfil
+              <span className="text-[10px] sm:text-sm">Perfil</span>
             </TabsTrigger>
           </TabsList>
 
           {/* TAB: Visão Geral (Dashboard) */}
-          <TabsContent value="visao-geral" className="space-y-12">
+          <TabsContent value="visao-geral" className="space-y-8 sm:space-y-12">
             <div className="animate-fade-in">
-              <h1 className="text-4xl font-sans font-bold mb-3 leading-tight text-slate-800 dark:text-slate-100">
+              <h1 className="text-2xl sm:text-4xl font-sans font-bold mb-2 sm:mb-3 leading-tight text-slate-800 dark:text-slate-100">
                 Visão Geral
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
                 Acompanhe o ciclo de vida do seu capital: Aporte → Recebimento → Destinação.
               </p>
             </div>
 
             {/* KPIs Cards */}
-            <div className="grid md:grid-cols-3 gap-6 animate-slide-up">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-slide-up">
               {/* Total Investido (Ativo) */}
-              <Card className="shadow-sm border-l-4 border-l-primary hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <CardHeader className="pb-4">
-                  <CardDescription className="text-sm flex items-center gap-2">
+              <Card 
+                className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-primary hover:shadow-md transition-all duration-200 cursor-pointer"
+                onClick={() => handleKpiClick("total_investido")}
+              >
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-primary" strokeWidth={1.5} />
                     Total Investido (Ativo)
                   </CardDescription>
-                  <CardTitle className="text-3xl font-mono mt-2 text-primary">
+                  <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-primary tracking-tight">
                     R$ {totalInvestido.toLocaleString("pt-BR")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Capital trabalhando no momento em {mockAcordos.filter((a) => a.status === "Ativo").length} acordos ativos.
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Capital trabalhando em {acordosAtivos.length} acordos ativos.
                   </p>
                 </CardContent>
               </Card>
 
               {/* Disponível para Destinação */}
-              <Card className={`shadow-sm border-l-4 hover:-translate-y-0.5 hover:shadow-md transition-all ${aguardandoDestinacao > 0 ? "border-l-amber-500" : "border-l-slate-300"}`}>
-                <CardHeader className="pb-4">
-                  <CardDescription className="text-sm flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-amber-500" strokeWidth={1.5} />
+              <Card 
+                className={`shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 hover:shadow-md transition-all duration-200 cursor-pointer ${
+                  aguardandoDestinacao > 0 ? "border-l-blue-500" : "border-l-slate-300"
+                }`}
+                onClick={() => handleKpiClick("aguardando_destinacao")}
+              >
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-600" strokeWidth={1.5} />
                     Disponível para Destinação
                     {aguardandoDestinacao > 0 && (
-                      <AlertCircle className="h-4 w-4 text-amber-500" strokeWidth={1.5} />
+                      <AlertCircle className="h-4 w-4 text-blue-500" strokeWidth={1.5} />
                     )}
                   </CardDescription>
-                  <CardTitle className={`text-3xl font-mono mt-2 ${aguardandoDestinacao > 0 ? "text-amber-600" : "text-slate-600"}`}>
+                  <CardTitle className={`text-2xl sm:text-3xl font-mono mt-2 tracking-tight ${
+                    aguardandoDestinacao > 0 ? "text-blue-600" : "text-slate-600 dark:text-slate-400"
+                  }`}>
                     R$ {aguardandoDestinacao.toLocaleString("pt-BR")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {aguardandoDestinacao > 0
-                      ? "Parcelas vencidas aguardando ação. Entre em contato com seu gestor."
+                      ? "Parcelas vencidas aguardando ação."
                       : "Nenhuma parcela aguardando destinação."}
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Projeção Próximo Dia 28 */}
-              <Card className="shadow-sm border-l-4 border-l-slate-400 hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <CardHeader className="pb-4">
-                  <CardDescription className="text-sm flex items-center gap-2">
+              {/* Próximo Vencimento */}
+              <Card 
+                className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md transition-all duration-200 cursor-pointer sm:col-span-2 lg:col-span-1"
+                onClick={() => handleKpiClick("proximo_vencimento")}
+              >
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
                     <CalendarClock className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
-                    Projeção (Próximo dia 28)
+                    Próximo Vencimento {proximoVencimento.dataFormatada && `(${proximoVencimento.dataFormatada})`}
                   </CardDescription>
-                  <CardTitle className="text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300">
-                    R$ {projecaoProximoDia28.toLocaleString("pt-BR")}
+                  <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
+                    R$ {proximoVencimento.valor.toLocaleString("pt-BR")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Previsão de recebimento para o próximo ciclo de liquidação.
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {proximoVencimento.itens.length} parcela(s) prevista(s) para o próximo ciclo.
                   </p>
                 </CardContent>
               </Card>
@@ -302,21 +432,22 @@ const ClientPortal = () => {
           </TabsContent>
 
           {/* TAB: Carteira de Acordos */}
-          <TabsContent value="carteira" className="space-y-6">
+          <TabsContent value="carteira" className="space-y-4 sm:space-y-6">
             <div>
-              <h2 className="text-3xl font-sans font-bold mb-2 text-slate-800 dark:text-slate-100">
+              <h2 className="text-xl sm:text-3xl font-sans font-bold mb-1 sm:mb-2 text-slate-800 dark:text-slate-100">
                 Carteira de Acordos
               </h2>
-              <p className="text-muted-foreground">
-                Clique em um acordo para ver o cronograma detalhado de parcelas.
+              <p className="text-sm text-muted-foreground">
+                Clique em um acordo para ver o cronograma detalhado.
               </p>
             </div>
 
-            <Card className="shadow-sm">
+            {/* Desktop Table */}
+            <Card className="shadow-sm border border-slate-100 dark:border-slate-700 hidden md:block">
               <CardContent className="pt-6">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="border-b border-border">
+                    <thead className="border-b border-slate-200 dark:border-slate-700">
                       <tr>
                         <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           ID
@@ -345,7 +476,7 @@ const ClientPortal = () => {
                       {mockAcordos.map((acordo) => (
                         <tr
                           key={acordo.id}
-                          className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
+                          className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors duration-200"
                           onClick={() => handleAcordoClick(acordo)}
                         >
                           <td className="py-4 px-4 font-semibold text-primary">
@@ -354,7 +485,7 @@ const ClientPortal = () => {
                           <td className="py-4 px-4 text-sm text-slate-600 dark:text-slate-400">
                             {acordo.dataInicio}
                           </td>
-                          <td className="py-4 px-4 font-mono font-semibold">
+                          <td className="py-4 px-4 font-mono font-semibold text-slate-900 dark:text-slate-100">
                             R$ {acordo.valorOriginal.toLocaleString("pt-BR")}
                           </td>
                           <td className="py-4 px-4 text-sm">
@@ -392,7 +523,6 @@ const ClientPortal = () => {
                               className="text-primary hover:text-primary/80"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Simular download do PDF
                               }}
                             >
                               <FileText className="h-4 w-4" strokeWidth={1.5} />
@@ -405,24 +535,70 @@ const ClientPortal = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-3">
+              {mockAcordos.map((acordo) => (
+                <Card
+                  key={acordo.id}
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:shadow-md transition-all duration-200"
+                  onClick={() => handleAcordoClick(acordo)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-semibold text-primary text-lg">{acordo.id}</p>
+                        <p className="text-xs text-muted-foreground">{acordo.origemRecurso}</p>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className={
+                          acordo.status === "Ativo"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        }
+                      >
+                        {acordo.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                          R$ {acordo.valorOriginal.toLocaleString("pt-BR")}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Início: {acordo.dataInicio}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Progress
+                          value={(acordo.progresso / acordo.total) * 100}
+                          className="h-2 w-16"
+                        />
+                        <span className="text-xs text-muted-foreground">{acordo.progresso}/{acordo.total}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* TAB: Histórico de Movimentações */}
-          <TabsContent value="historico" className="space-y-6">
+          <TabsContent value="historico" className="space-y-4 sm:space-y-6">
             <div>
-              <h2 className="text-3xl font-sans font-bold mb-2 text-slate-800 dark:text-slate-100">
+              <h2 className="text-xl sm:text-3xl font-sans font-bold mb-1 sm:mb-2 text-slate-800 dark:text-slate-100">
                 Histórico de Movimentações
               </h2>
-              <p className="text-muted-foreground">
-                Log de eventos: Liquidações, Renovações e Saques com rastreabilidade completa.
+              <p className="text-sm text-muted-foreground">
+                Log de eventos: Liquidações, Renovações e Saques.
               </p>
             </div>
 
-            <Card className="shadow-sm">
+            {/* Desktop Table */}
+            <Card className="shadow-sm border border-slate-100 dark:border-slate-700 hidden md:block">
               <CardContent className="pt-6">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="border-b border-border">
+                    <thead className="border-b border-slate-200 dark:border-slate-700">
                       <tr>
                         <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           Data
@@ -431,7 +607,7 @@ const ClientPortal = () => {
                           Evento
                         </th>
                         <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Detalhes (Rastreabilidade)
+                          Detalhes
                         </th>
                         <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           Valor
@@ -448,7 +624,7 @@ const ClientPortal = () => {
                         return (
                           <tr
                             key={i}
-                            className="border-b border-border/50 hover:bg-muted/30"
+                            className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200"
                           >
                             <td className="py-4 px-4 text-sm text-slate-600 dark:text-slate-400">
                               {mov.data}
@@ -462,10 +638,10 @@ const ClientPortal = () => {
                                 {config.label}
                               </Badge>
                             </td>
-                            <td className="py-4 px-4 text-sm max-w-md">
+                            <td className="py-4 px-4 text-sm max-w-md text-slate-600 dark:text-slate-400">
                               {mov.detalhes}
                             </td>
-                            <td className="py-4 px-4 text-right font-mono font-semibold">
+                            <td className="py-4 px-4 text-right font-mono font-semibold text-slate-900 dark:text-slate-100">
                               R$ {mov.valor.toLocaleString("pt-BR")}
                             </td>
                             <td className="py-4 px-4 text-center">
@@ -489,77 +665,118 @@ const ClientPortal = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-3">
+              {mockMovimentacoes.map((mov, i) => {
+                const config = eventoConfig[mov.evento as keyof typeof eventoConfig];
+                const Icon = config.icon;
+                return (
+                  <Card
+                    key={i}
+                    className="shadow-sm border border-slate-100 dark:border-slate-700"
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <Badge
+                          variant="secondary"
+                          className={`${config.className} gap-1`}
+                        >
+                          <Icon className="h-3 w-3" strokeWidth={1.5} />
+                          {config.label}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">{mov.data}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                        {mov.detalhes}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                          R$ {mov.valor.toLocaleString("pt-BR")}
+                        </p>
+                        {mov.temComprovante && (
+                          <Button variant="ghost" size="sm" className="text-primary h-8 px-2">
+                            <Paperclip className="h-4 w-4" strokeWidth={1.5} />
+                            <span className="text-xs ml-1">Ver</span>
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </TabsContent>
 
           {/* TAB: Meu Perfil */}
-          <TabsContent value="perfil" className="space-y-6">
+          <TabsContent value="perfil" className="space-y-4 sm:space-y-6">
             <div>
-              <h2 className="text-3xl font-sans font-bold mb-2 text-slate-800 dark:text-slate-100">
+              <h2 className="text-xl sm:text-3xl font-sans font-bold mb-1 sm:mb-2 text-slate-800 dark:text-slate-100">
                 Meu Perfil
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Dados cadastrais registrados para fins contratuais.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Dados Pessoais */}
-              <Card className="shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-lg text-slate-700 dark:text-slate-300">
+              <Card className="shadow-sm border border-slate-100 dark:border-slate-700">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
                     Dados Pessoais
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="col-span-2">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Nome Completo
                       </p>
-                      <p className="font-medium">{perfilCliente.nome}</p>
+                      <p className="font-medium text-sm sm:text-base">{perfilCliente.nome}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         CPF
                       </p>
-                      <p className="font-mono">{perfilCliente.cpf}</p>
+                      <p className="font-mono text-sm">{perfilCliente.cpf}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                        Profissão
+                      </p>
+                      <p className="font-medium text-sm">{perfilCliente.profissao}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         E-mail
                       </p>
-                      <p className="font-medium">{perfilCliente.email}</p>
+                      <p className="font-medium text-sm break-all">{perfilCliente.email}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Telefone
                       </p>
-                      <p className="font-medium">{perfilCliente.telefone}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        Profissão
-                      </p>
-                      <p className="font-medium">{perfilCliente.profissao}</p>
+                      <p className="font-medium text-sm">{perfilCliente.telefone}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Endereço */}
-              <Card className="shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-lg text-slate-700 dark:text-slate-300">
+              <Card className="shadow-sm border border-slate-100 dark:border-slate-700">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
                     Endereço
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="col-span-2">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Logradouro
                       </p>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm">
                         {perfilCliente.endereco.rua}, {perfilCliente.endereco.numero}
                         {perfilCliente.endereco.complemento && ` - ${perfilCliente.endereco.complemento}`}
                       </p>
@@ -568,62 +785,62 @@ const ClientPortal = () => {
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Bairro
                       </p>
-                      <p className="font-medium">{perfilCliente.endereco.bairro}</p>
+                      <p className="font-medium text-sm">{perfilCliente.endereco.bairro}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         CEP
                       </p>
-                      <p className="font-mono">{perfilCliente.endereco.cep}</p>
+                      <p className="font-mono text-sm">{perfilCliente.endereco.cep}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Cidade
                       </p>
-                      <p className="font-medium">{perfilCliente.endereco.cidade}</p>
+                      <p className="font-medium text-sm">{perfilCliente.endereco.cidade}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Estado
                       </p>
-                      <p className="font-medium">{perfilCliente.endereco.estado}</p>
+                      <p className="font-medium text-sm">{perfilCliente.endereco.estado}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Dados Bancários */}
-              <Card className="shadow-sm md:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg text-slate-700 dark:text-slate-300">
+              <Card className="shadow-sm border border-slate-100 dark:border-slate-700 md:col-span-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg text-slate-700 dark:text-slate-300">
                     Dados Bancários
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Banco
                       </p>
-                      <p className="font-medium">{perfilCliente.banco.nome}</p>
+                      <p className="font-medium text-sm">{perfilCliente.banco.nome}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Agência
                       </p>
-                      <p className="font-mono">{perfilCliente.banco.agencia}</p>
+                      <p className="font-mono text-sm">{perfilCliente.banco.agencia}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Conta
                       </p>
-                      <p className="font-mono">{perfilCliente.banco.conta}</p>
+                      <p className="font-mono text-sm">{perfilCliente.banco.conta}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Chave PIX Padrão
                       </p>
-                      <p className="font-medium">{perfilCliente.banco.chavePix}</p>
+                      <p className="font-medium text-sm break-all">{perfilCliente.banco.chavePix}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -631,9 +848,9 @@ const ClientPortal = () => {
             </div>
 
             {/* Nota de alteração */}
-            <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border border-border">
-              <Info className="h-5 w-5 text-muted-foreground mt-0.5" strokeWidth={1.5} />
-              <p className="text-sm text-muted-foreground">
+            <div className="flex items-start gap-3 p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                 Para alterações cadastrais, entre em contato com seu gestor.
               </p>
             </div>
@@ -642,9 +859,9 @@ const ClientPortal = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12">
-        <div className="max-w-editorial mx-auto px-8 py-8">
-          <p className="text-center text-sm text-muted-foreground">
+      <footer className="border-t border-slate-200 dark:border-slate-700 mt-8 sm:mt-12">
+        <div className="max-w-editorial mx-auto px-4 sm:px-8 py-6 sm:py-8">
+          <p className="text-center text-xs sm:text-sm text-muted-foreground">
             Transparência é o nosso ativo mais valioso.
           </p>
         </div>
@@ -655,6 +872,15 @@ const ClientPortal = () => {
         open={modalOpen}
         onOpenChange={setModalOpen}
         acordo={acordoSelecionado}
+      />
+
+      {/* Modal de Detalhes do KPI */}
+      <KpiDetalheModal
+        open={kpiModalOpen}
+        onOpenChange={setKpiModalOpen}
+        tipo={kpiModalTipo}
+        {...getKpiModalData()}
+        onItemClick={handleAcordoClickById}
       />
     </div>
   );
