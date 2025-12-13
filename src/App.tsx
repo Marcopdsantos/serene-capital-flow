@@ -16,7 +16,6 @@ import AcertosManuais from "./pages/AcertosManuais";
 import ComissoesAgentes from "./pages/ComissoesAgentes";
 import MesaLiquidacao from "./pages/MesaLiquidacao";
 import ClientPortal from "./pages/ClientPortal";
-import MeuPerfil from "./pages/MeuPerfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,7 +41,6 @@ const App = () => (
             <Route path="operacoes/mesa-liquidacao" element={<MesaLiquidacao />} />
           </Route>
           <Route path="/portal" element={<ClientPortal />} />
-          <Route path="/portal/perfil" element={<MeuPerfil />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
