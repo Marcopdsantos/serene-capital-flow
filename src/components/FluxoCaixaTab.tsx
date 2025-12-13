@@ -1,22 +1,30 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { FileText, DollarSign, RefreshCw, UserPlus } from "lucide-react";
 
 const dadosFluxo = [
-  { mes: "Jan", entradas: 450000, saidas: 380000, saldo: 70000, acordos: 18 },
-  { mes: "Fev", entradas: 520000, saidas: 410000, saldo: 110000, acordos: 21 },
-  { mes: "Mar", entradas: 680000, saidas: 550000, saldo: 130000, acordos: 28 },
-  { mes: "Abr", entradas: 720000, saidas: 580000, saldo: 140000, acordos: 29 },
-  { mes: "Mai", entradas: 850000, saidas: 690000, saldo: 160000, acordos: 35 },
-  { mes: "Jun", entradas: 920000, saidas: 740000, saldo: 180000, acordos: 38 },
-  { mes: "Jul", entradas: 780000, saidas: 620000, saldo: 160000, acordos: 32 },
-  { mes: "Ago", entradas: 890000, saidas: 710000, saldo: 180000, acordos: 36 },
-  { mes: "Set", entradas: 950000, saidas: 760000, saldo: 190000, acordos: 39 },
-  { mes: "Out", entradas: 1020000, saidas: 820000, saldo: 200000, acordos: 42 },
-  { mes: "Nov", entradas: 1150000, saidas: 920000, saldo: 230000, acordos: 47 },
-  { mes: "Dez", entradas: 1280000, saidas: 1020000, saldo: 260000, acordos: 52 },
+  { mes: "Jan", acordos: 18, valorAportado: 450000, novosClientes: 5, renovacoes: 13 },
+  { mes: "Fev", acordos: 21, valorAportado: 520000, novosClientes: 7, renovacoes: 14 },
+  { mes: "Mar", acordos: 28, valorAportado: 680000, novosClientes: 9, renovacoes: 19 },
+  { mes: "Abr", acordos: 29, valorAportado: 720000, novosClientes: 8, renovacoes: 21 },
+  { mes: "Mai", acordos: 35, valorAportado: 850000, novosClientes: 12, renovacoes: 23 },
+  { mes: "Jun", acordos: 38, valorAportado: 920000, novosClientes: 10, renovacoes: 28 },
+  { mes: "Jul", acordos: 32, valorAportado: 780000, novosClientes: 8, renovacoes: 24 },
+  { mes: "Ago", acordos: 36, valorAportado: 890000, novosClientes: 11, renovacoes: 25 },
+  { mes: "Set", acordos: 39, valorAportado: 950000, novosClientes: 9, renovacoes: 30 },
+  { mes: "Out", acordos: 42, valorAportado: 1020000, novosClientes: 13, renovacoes: 29 },
+  { mes: "Nov", acordos: 47, valorAportado: 1150000, novosClientes: 15, renovacoes: 32 },
+  { mes: "Dez", acordos: 52, valorAportado: 1280000, novosClientes: 14, renovacoes: 38 },
 ];
+
+// Calcular totais e médias para KPIs
+const totalAcordos = dadosFluxo.reduce((acc, item) => acc + item.acordos, 0);
+const totalAportado = dadosFluxo.reduce((acc, item) => acc + item.valorAportado, 0);
+const totalNovosClientes = dadosFluxo.reduce((acc, item) => acc + item.novosClientes, 0);
+const totalRenovacoes = dadosFluxo.reduce((acc, item) => acc + item.renovacoes, 0);
+const taxaRenovacao = Math.round((totalRenovacoes / totalAcordos) * 100);
 
 export const FluxoCaixaTab = () => {
   return (
@@ -26,45 +34,90 @@ export const FluxoCaixaTab = () => {
         <div>
           <h2 className="text-2xl font-sans font-bold mb-2">Fluxo de Caixa</h2>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Projeção de fluxo de caixa consolidada — atualizada automaticamente com base nos acordos ativos e conciliados.
+            Visão consolidada de acordos e valores aportados por período.
           </p>
         </div>
         
-        <div className="flex gap-3">
-          <Select defaultValue="2024">
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Ano" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select defaultValue="todos">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Cliente" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os Clientes</SelectItem>
-              <SelectItem value="cliente1">Cliente 1</SelectItem>
-              <SelectItem value="cliente2">Cliente 2</SelectItem>
-              <SelectItem value="cliente3">Cliente 3</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select defaultValue="2024">
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Ano" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2024">2024</SelectItem>
+            <SelectItem value="2023">2023</SelectItem>
+            <SelectItem value="2022">2022</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Gráfico de Fluxo */}
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Acordos no Ano</p>
+                <p className="text-2xl font-bold">{totalAcordos}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-accent/10">
+                <DollarSign className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Valores Aportados</p>
+                <p className="text-2xl font-bold">R$ {(totalAportado / 1000000).toFixed(1)}M</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-success/10">
+                <RefreshCw className="h-5 w-5 text-success" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Taxa de Renovação</p>
+                <p className="text-2xl font-bold">{taxaRenovacao}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-warning/10">
+                <UserPlus className="h-5 w-5 text-warning" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Novos Clientes</p>
+                <p className="text-2xl font-bold">{totalNovosClientes}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gráfico de Barras */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-sans font-bold">Visão Temporal</CardTitle>
-          <CardDescription>Entradas e saídas mensais projetadas</CardDescription>
+          <CardTitle className="text-lg font-sans font-bold">Acordos e Aportes por Mês</CardTitle>
+          <CardDescription>Quantidade de acordos e valores aportados mensalmente</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={dadosFluxo}>
+            <BarChart data={dadosFluxo}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis 
                 dataKey="mes" 
@@ -72,6 +125,13 @@ export const FluxoCaixaTab = () => {
                 style={{ fontSize: '12px' }}
               />
               <YAxis 
+                yAxisId="left"
+                stroke="hsl(var(--muted-foreground))"
+                style={{ fontSize: '12px' }}
+              />
+              <YAxis 
+                yAxisId="right"
+                orientation="right"
                 stroke="hsl(var(--muted-foreground))"
                 style={{ fontSize: '12px' }}
                 tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
@@ -83,81 +143,77 @@ export const FluxoCaixaTab = () => {
                   borderRadius: '8px',
                   fontSize: '13px'
                 }}
-                formatter={(value: number) => [
-                  `R$ ${value.toLocaleString('pt-BR')}`,
-                  ''
-                ]}
+                formatter={(value: number, name: string) => {
+                  if (name === 'valorAportado') {
+                    return [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor Aportado'];
+                  }
+                  return [value, 'Acordos'];
+                }}
               />
               <Legend 
                 wrapperStyle={{ fontSize: '13px', paddingTop: '20px' }}
                 formatter={(value) => {
                   const labels: Record<string, string> = {
-                    entradas: 'Entradas Previstas',
-                    saidas: 'Saídas',
-                    saldo: 'Saldo Projetado'
+                    acordos: 'Acordos',
+                    valorAportado: 'Valor Aportado'
                   };
                   return labels[value] || value;
                 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="entradas" 
-                stroke="hsl(var(--accent))" 
-                strokeWidth={2.5}
-                dot={{ fill: 'hsl(var(--accent))' }}
+              <Bar 
+                yAxisId="left"
+                dataKey="acordos" 
+                fill="hsl(var(--primary))" 
+                radius={[4, 4, 0, 0]}
               />
-              <Line 
-                type="monotone" 
-                dataKey="saidas" 
-                stroke="hsl(var(--destructive))" 
-                strokeWidth={2.5}
-                dot={{ fill: 'hsl(var(--destructive))' }}
+              <Bar 
+                yAxisId="right"
+                dataKey="valorAportado" 
+                fill="hsl(var(--accent))" 
+                radius={[4, 4, 0, 0]}
               />
-              <Line 
-                type="monotone" 
-                dataKey="saldo" 
-                stroke="hsl(var(--success))" 
-                strokeWidth={2.5}
-                dot={{ fill: 'hsl(var(--success))' }}
-              />
-            </LineChart>
+            </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Tabela Detalhada */}
+      {/* Tabela Simplificada */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-sans font-bold">Detalhamento Mensal</CardTitle>
-          <CardDescription>Consolidação completa por período</CardDescription>
+          <CardDescription>Resumo por período</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="font-semibold">Mês</TableHead>
-                <TableHead className="font-semibold text-right">Entradas Previstas</TableHead>
-                <TableHead className="font-semibold text-right">Saídas</TableHead>
-                <TableHead className="font-semibold text-right">Saldo Projetado</TableHead>
-                <TableHead className="font-semibold text-center">Nº de Acordos</TableHead>
+                <TableHead className="font-semibold text-center">Acordos</TableHead>
+                <TableHead className="font-semibold text-right">Valor Aportado</TableHead>
+                <TableHead className="font-semibold text-center">Novos Clientes</TableHead>
+                <TableHead className="font-semibold text-center">Renovações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {dadosFluxo.map((linha) => (
                 <TableRow key={linha.mes} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="font-medium">{linha.mes}</TableCell>
+                  <TableCell className="text-center">
+                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      {linha.acordos}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right text-accent font-semibold numeric-value">
-                    R$ {linha.entradas.toLocaleString('pt-BR')}
-                  </TableCell>
-                  <TableCell className="text-right text-destructive numeric-value">
-                    R$ {linha.saidas.toLocaleString('pt-BR')}
-                  </TableCell>
-                  <TableCell className="text-right text-success font-semibold numeric-value">
-                    R$ {linha.saldo.toLocaleString('pt-BR')}
+                    R$ {linha.valorAportado.toLocaleString('pt-BR')}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-muted text-xs font-medium">
-                      {linha.acordos}
+                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">
+                      {linha.novosClientes}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-success/10 text-success text-xs font-medium">
+                      {linha.renovacoes}
                     </span>
                   </TableCell>
                 </TableRow>
