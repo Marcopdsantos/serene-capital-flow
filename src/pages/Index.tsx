@@ -23,19 +23,21 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-editorial mx-auto px-6 md:px-8 py-16 md:py-24 animate-fade-in">
-        <div className="max-w-4xl">
+      <section className="max-w-editorial mx-auto px-6 md:px-8 py-16 md:py-24 animate-fade-in text-center">
+        <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
-            Operações de crédito com segurança e rentabilidade.
+            Operações de crédito
+            <br />
+            com segurança e rentabilidade
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-2xl text-justify">
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-2xl mx-auto text-justify">
             A Acordo Capital estrutura e gerencia operações lastreadas em direitos creditórios, 
             com análise, formalização e acompanhamento ponta a ponta — para você investir com 
             transparência, governança e controle.
           </p>
           
           {/* CTA Buttons - Stacked on mobile */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
             <a href={WHATSAPP_LINK} target="_blank" rel="noreferrer" className="w-full sm:w-auto">
               <Button size="lg" className="text-base md:text-lg font-sans h-14 px-8 w-full sm:w-auto">
                 <MessageCircle className="mr-2 h-5 w-5" />
@@ -53,7 +55,7 @@ const Index = () => {
           {/* Anchor link */}
           <button 
             onClick={scrollToFeatures}
-            className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm"
+            className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm mx-auto"
           >
             Saiba Mais
             <ChevronDown className="h-4 w-4" />
