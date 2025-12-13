@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { FileText, DollarSign, RefreshCw, UserPlus } from "lucide-react";
+import { FileText, DollarSign, UserPlus } from "lucide-react";
 
 const dadosFluxo = [
   { mes: "Jan", acordos: 18, valorAportado: 450000, novosClientes: 5, renovacoes: 13 },
@@ -23,8 +23,6 @@ const dadosFluxo = [
 const totalAcordos = dadosFluxo.reduce((acc, item) => acc + item.acordos, 0);
 const totalAportado = dadosFluxo.reduce((acc, item) => acc + item.valorAportado, 0);
 const totalNovosClientes = dadosFluxo.reduce((acc, item) => acc + item.novosClientes, 0);
-const totalRenovacoes = dadosFluxo.reduce((acc, item) => acc + item.renovacoes, 0);
-const taxaRenovacao = Math.round((totalRenovacoes / totalAcordos) * 100);
 
 export const FluxoCaixaTab = () => {
   return (
@@ -51,7 +49,7 @@ export const FluxoCaixaTab = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -75,20 +73,6 @@ export const FluxoCaixaTab = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Valores Aportados</p>
                 <p className="text-2xl font-bold">R$ {(totalAportado / 1000000).toFixed(1)}M</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-success/10">
-                <RefreshCw className="h-5 w-5 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Taxa de Renovação</p>
-                <p className="text-2xl font-bold">{taxaRenovacao}%</p>
               </div>
             </div>
           </CardContent>
