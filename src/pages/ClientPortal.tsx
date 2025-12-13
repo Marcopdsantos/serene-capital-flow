@@ -891,7 +891,7 @@ const ClientPortal = () => {
           <p className="text-center text-[10px] sm:text-xs text-muted-foreground/60">
             Desenvolvido por{" "}
             <a 
-              href="https://instagram.com/space.inteligencia" 
+              href="https://www.instagram.com/space.inteligencia/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors"
