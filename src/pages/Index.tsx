@@ -25,8 +25,8 @@ const Index = () => {
       {/* Hero Section */}
       <section className="max-w-editorial mx-auto px-6 md:px-8 py-16 md:py-24 animate-fade-in">
         <div className="max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
-            Operações de crédito com a clareza que você merece
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
+            Operações de crédito com segurança e rentabilidade.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-2xl text-justify">
             A Acordo Capital estrutura e gerencia operações lastreadas em direitos creditórios, 
