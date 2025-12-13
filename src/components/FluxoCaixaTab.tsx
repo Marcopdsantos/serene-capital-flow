@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { FileText, DollarSign, UserPlus } from "lucide-react";
+import { AcordosDetalheModal } from "@/components/fluxo/AcordosDetalheModal";
+import { ClientesDetalheModal } from "@/components/fluxo/ClientesDetalheModal";
 
 const dadosFluxo = [
   { mes: "Jan", acordos: 18, valorAportado: 450000, novosClientes: 5, renovacoes: 13 },
@@ -25,6 +28,23 @@ const totalAportado = dadosFluxo.reduce((acc, item) => acc + item.valorAportado,
 const totalNovosClientes = dadosFluxo.reduce((acc, item) => acc + item.novosClientes, 0);
 
 export const FluxoCaixaTab = () => {
+  const [acordosModalOpen, setAcordosModalOpen] = useState(false);
+  const [clientesModalOpen, setClientesModalOpen] = useState(false);
+  const [modalMes, setModalMes] = useState<string | undefined>();
+  const [modalTipo, setModalTipo] = useState<"ano" | "mes">("ano");
+
+  const handleAcordosClick = (mes?: string) => {
+    setModalMes(mes);
+    setModalTipo(mes ? "mes" : "ano");
+    setAcordosModalOpen(true);
+  };
+
+  const handleClientesClick = (mes?: string) => {
+    setModalMes(mes);
+    setModalTipo(mes ? "mes" : "ano");
+    setClientesModalOpen(true);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header com descrição e filtros */}
@@ -50,7 +70,10 @@ export const FluxoCaixaTab = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:border-primary/50 transition-colors"
+          onClick={() => handleAcordosClick()}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -78,7 +101,10 @@ export const FluxoCaixaTab = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:border-primary/50 transition-colors"
+          onClick={() => handleClientesClick()}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-warning/10">
@@ -182,17 +208,23 @@ export const FluxoCaixaTab = () => {
                 <TableRow key={linha.mes} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="font-medium">{linha.mes}</TableCell>
                   <TableCell className="text-center">
-                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                    <button
+                      onClick={() => handleAcordosClick(linha.mes)}
+                      className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
+                    >
                       {linha.acordos}
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell className="text-right text-accent font-semibold numeric-value">
                     R$ {linha.valorAportado.toLocaleString('pt-BR')}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">
+                    <button
+                      onClick={() => handleClientesClick(linha.mes)}
+                      className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors cursor-pointer"
+                    >
                       {linha.novosClientes}
-                    </span>
+                    </button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -200,6 +232,20 @@ export const FluxoCaixaTab = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modais */}
+      <AcordosDetalheModal
+        open={acordosModalOpen}
+        onOpenChange={setAcordosModalOpen}
+        mes={modalMes}
+        tipo={modalTipo}
+      />
+      <ClientesDetalheModal
+        open={clientesModalOpen}
+        onOpenChange={setClientesModalOpen}
+        mes={modalMes}
+        tipo={modalTipo}
+      />
     </div>
   );
 };
