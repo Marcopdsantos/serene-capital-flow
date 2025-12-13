@@ -51,7 +51,6 @@ export function AppSidebar() {
       items: [
         { title: "Fluxo de Caixa", url: "/dashboard/financeiro/fluxo" },
         { title: "Acertos Manuais", url: "/dashboard/financeiro/acertos" },
-        { title: "Comissões", url: "/dashboard/financeiro/comissoes" },
       ],
     },
   ];
@@ -86,7 +85,7 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.title}>
                 {item.items ? (
                   <Collapsible
-                    defaultOpen={isGroupActive(item.items)}
+                    defaultOpen={true}
                     className="group/collapsible"
                   >
                     <CollapsibleTrigger asChild>
