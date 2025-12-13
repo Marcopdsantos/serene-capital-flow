@@ -26,7 +26,7 @@ const Index = () => {
       <section className="max-w-editorial mx-auto px-6 md:px-8 py-16 md:py-24 animate-fade-in text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
-            Operações de crédito
+            Operações de Crédito
             <br />
             com segurança e rentabilidade
           </h1>
