@@ -175,7 +175,6 @@ export const FluxoCaixaTab = () => {
                 <TableHead className="font-semibold text-center">Acordos</TableHead>
                 <TableHead className="font-semibold text-right">Valor Aportado</TableHead>
                 <TableHead className="font-semibold text-center">Novos Clientes</TableHead>
-                <TableHead className="font-semibold text-center">Renovações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -193,11 +192,6 @@ export const FluxoCaixaTab = () => {
                   <TableCell className="text-center">
                     <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">
                       {linha.novosClientes}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-success/10 text-success text-xs font-medium">
-                      {linha.renovacoes}
                     </span>
                   </TableCell>
                 </TableRow>
