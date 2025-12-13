@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Shield, TrendingUp, FileText, MessageCircle, ChevronDown } from "lucide-react";
+import { ArrowRight, Building2, ClipboardList, Handshake, MessageCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
@@ -28,7 +28,7 @@ const Index = () => {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
             Operações de crédito com a clareza que você merece
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-2xl">
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-2xl text-justify">
             A Acordo Capital estrutura e gerencia operações lastreadas em direitos creditórios, 
             com análise, formalização e acompanhamento ponta a ponta — para você investir com 
             transparência, governança e controle.
@@ -66,56 +66,48 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Shield className="h-7 w-7 text-primary" />
+              <Building2 className="h-7 w-7 text-primary" />
             </div>
-            <h3 className="text-xl md:text-2xl font-semibold">Transparência Total</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Acompanhe cada operação com visibilidade completa: valores, datas, status, 
-              repasses e histórico de movimentações — tudo organizado e rastreável.
+            <h3 className="text-xl md:text-2xl font-semibold">Quem somos</h3>
+            <p className="text-muted-foreground leading-relaxed text-justify">
+              A Acordo Capital é especializada na estruturação e gestão de operações de crédito 
+              lastreadas em direitos creditórios, com foco em clareza e governança.
             </p>
           </div>
 
           <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
-              <TrendingUp className="h-7 w-7 text-accent" />
+              <ClipboardList className="h-7 w-7 text-accent" />
             </div>
-            <h3 className="text-xl md:text-2xl font-semibold">Gestão Inteligente</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Centralize múltiplas operações em um só lugar. Controle conciliações, 
-              repasses e documentos com clareza operacional e padronização de processos.
+            <h3 className="text-xl md:text-2xl font-semibold">Como atuamos</h3>
+            <p className="text-muted-foreground leading-relaxed text-justify">
+              Fazemos a análise, a formalização e o acompanhamento das operações do início ao fim, 
+              com processo padronizado e documentação organizada.
             </p>
           </div>
 
           <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center">
-              <FileText className="h-7 w-7 text-success" />
+              <Handshake className="h-7 w-7 text-success" />
             </div>
-            <h3 className="text-xl md:text-2xl font-semibold">Experiência Editorial</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Uma interface pensada para confiança: informações objetivas, leitura simples 
-              e tomada de decisão com tranquilidade.
+            <h3 className="text-xl md:text-2xl font-semibold">Nosso compromisso</h3>
+            <p className="text-muted-foreground leading-relaxed text-justify">
+              Transparência na comunicação, seriedade na condução e suporte direto com gestor 
+              quando você precisar — do primeiro contato ao acompanhamento.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-20 my-16 md:my-editorial">
-        <div className="max-w-editorial mx-auto px-6 md:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 md:gap-16 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-bold font-serif">R$ 50M+</div>
-              <div className="text-base md:text-lg opacity-90">Em volume de operações acompanhadas</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-bold font-serif">500+</div>
-              <div className="text-base md:text-lg opacity-90">Clientes e investidores ativos</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-bold font-serif">99.9%</div>
-              <div className="text-base md:text-lg opacity-90">Precisão em conciliações internas</div>
-            </div>
-          </div>
+      {/* Company Info Section */}
+      <section className="bg-primary text-primary-foreground py-12 md:py-16 my-16 md:my-editorial">
+        <div className="max-w-editorial mx-auto px-6 md:px-8 text-center">
+          <p className="text-lg md:text-xl font-semibold">
+            ACORDO CAPITAL LTDA
+          </p>
+          <p className="text-base md:text-lg opacity-90 mt-2">
+            CNPJ 60.300.968/0001-65
+          </p>
         </div>
       </section>
 
@@ -124,7 +116,7 @@ const Index = () => {
         <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
           Pronto para conhecer a Acordo Capital?
         </h2>
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed text-justify">
           Fale com um gestor e receba uma apresentação da plataforma e da estrutura das operações.
         </p>
         <a href={WHATSAPP_LINK} target="_blank" rel="noreferrer" className="inline-block w-full sm:w-auto">
@@ -147,29 +139,17 @@ const Index = () => {
           </p>
           
           {/* Créditos dev */}
-          <div className="text-xs text-muted-foreground/70 space-y-1">
-            <p>
-              <a 
-                href="https://www.instagram.com/space.inteligencia/" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="hover:text-primary transition-colors"
-              >
-                Space Inteligência - instagram @space.inteligencia
-              </a>
-            </p>
-            <p>
-              Desenvolvido por{" "}
-              <a 
-                href="https://www.instagram.com/space.inteligencia/" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="hover:text-primary transition-colors"
-              >
-                Space Inteligência
-              </a>
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground/70">
+            Desenvolvido por{" "}
+            <a 
+              href="https://www.instagram.com/space.inteligencia/" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="hover:text-primary transition-colors"
+            >
+              Space Inteligência
+            </a>
+          </p>
         </div>
       </footer>
     </div>
