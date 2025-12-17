@@ -1,13 +1,12 @@
 import { useState, useMemo } from "react";
 import {
   TrendingUp,
-  Clock,
+  Target,
+  CalendarDays,
   Home,
   Briefcase,
   ArrowLeftRight,
   UserCircle,
-  CalendarClock,
-  AlertCircle,
   FileText,
   ArrowUpRight,
   RefreshCw,
@@ -172,83 +171,66 @@ const ClientPortal = () => {
   const [acordoSelecionado, setAcordoSelecionado] = useState<typeof mockAcordos[0] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [kpiModalOpen, setKpiModalOpen] = useState(false);
-  const [kpiModalTipo, setKpiModalTipo] = useState<"total_investido" | "aguardando_destinacao" | "proximo_vencimento">("total_investido");
+  const [kpiModalTipo, setKpiModalTipo] = useState<"capital_investido" | "retorno_previsto" | "previsao_mes">("capital_investido");
 
   const hoje = new Date();
 
-  // Cálculos para KPIs com itens detalhados
+  // Acordos ativos
   const acordosAtivos = mockAcordos.filter((a) => a.status === "Ativo");
-  const totalInvestido = acordosAtivos.reduce((sum, a) => sum + a.valorOriginal, 0);
-  const totalInvestidoItens = acordosAtivos.map((a) => ({
+
+  // 1. Capital Investido - soma dos valores originais dos acordos ativos
+  const capitalInvestido = acordosAtivos.reduce((sum, a) => sum + a.valorOriginal, 0);
+  const capitalInvestidoItens = acordosAtivos.map((a) => ({
     acordoId: a.id,
     descricao: `Início: ${a.dataInicio} • ${a.origemRecurso}`,
     valor: a.valorOriginal,
   }));
 
-  // Parcelas vencidas aguardando destinação
-  const parcelasAguardando = useMemo(() => {
-    const itens: { acordoId: string; descricao: string; valor: number; parcela: ParcelaCliente }[] = [];
-    mockAcordos.forEach((acordo) => {
+  // 2. Retorno Previsto - soma de TODAS as parcelas (pagas + pendentes + reinvestidas)
+  const retornoPrevisto = useMemo(() => {
+    let total = 0;
+    const itens: { acordoId: string; descricao: string; valor: number }[] = [];
+
+    acordosAtivos.forEach((acordo) => {
+      const retornoAcordo = acordo.parcelas.reduce((sum, p) => sum + p.valor, 0);
+      total += retornoAcordo;
+      itens.push({
+        acordoId: acordo.id,
+        descricao: `${acordo.total} parcelas • Aporte: R$ ${acordo.valorOriginal.toLocaleString("pt-BR")}`,
+        valor: retornoAcordo,
+      });
+    });
+
+    return { total, itens };
+  }, [acordosAtivos]);
+
+  // 3. Previsão do Mês - parcelas com vencimento no mês atual
+  const previsaoMes = useMemo(() => {
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    const itens: { acordoId: string; descricao: string; valor: number }[] = [];
+
+    acordosAtivos.forEach((acordo) => {
       acordo.parcelas.forEach((p) => {
         const dataVenc = parseDateBR(p.dataVencimento);
-        if ((p.status === "pendente" || p.status === "reservada") && dataVenc < hoje) {
+        if (dataVenc.getMonth() === mesAtual && dataVenc.getFullYear() === anoAtual) {
           itens.push({
             acordoId: acordo.id,
             descricao: `Parcela ${p.numero}/${acordo.total} • Venc: ${p.dataVencimento}`,
             valor: p.valor,
-            parcela: p,
           });
         }
       });
     });
-    return itens;
-  }, []);
 
-  const aguardandoDestinacao = parcelasAguardando.reduce((sum, item) => sum + item.valor, 0);
-
-  // Próximo vencimento dinâmico
-  const proximoVencimento = useMemo(() => {
-    let proximaData: Date | null = null;
-    const parcelas: { acordoId: string; descricao: string; valor: number; data: Date }[] = [];
-
-    mockAcordos.forEach((acordo) => {
-      acordo.parcelas.forEach((p) => {
-        if (p.status === "pendente" || p.status === "reservada") {
-          const dataVenc = parseDateBR(p.dataVencimento);
-          if (dataVenc >= hoje) {
-            if (!proximaData || dataVenc < proximaData) {
-              proximaData = dataVenc;
-            }
-          }
-        }
-      });
-    });
-
-    if (proximaData) {
-      mockAcordos.forEach((acordo) => {
-        acordo.parcelas.forEach((p) => {
-          if (p.status === "pendente" || p.status === "reservada") {
-            const dataVenc = parseDateBR(p.dataVencimento);
-            if (dataVenc.getTime() === proximaData!.getTime()) {
-              parcelas.push({
-                acordoId: acordo.id,
-                descricao: `Parcela ${p.numero}/${acordo.total}`,
-                valor: p.valor,
-                data: dataVenc,
-              });
-            }
-          }
-        });
-      });
-    }
+    const mesNome = hoje.toLocaleString("pt-BR", { month: "long" });
 
     return {
-      data: proximaData,
-      dataFormatada: proximaData ? formatDateBR(proximaData) : null,
-      valor: parcelas.reduce((sum, p) => sum + p.valor, 0),
-      itens: parcelas,
+      total: itens.reduce((sum, i) => sum + i.valor, 0),
+      itens,
+      mesNome: mesNome.charAt(0).toUpperCase() + mesNome.slice(1),
     };
-  }, []);
+  }, [acordosAtivos]);
 
   const handleAcordoClick = (acordo: typeof mockAcordos[0]) => {
     setAcordoSelecionado(acordo);
@@ -287,34 +269,26 @@ const ClientPortal = () => {
 
   const getKpiModalData = () => {
     switch (kpiModalTipo) {
-      case "total_investido":
+      case "capital_investido":
         return {
-          titulo: "Total Investido (Ativo)",
-          subtitulo: "Acordos com capital em operação",
-          valor: totalInvestido,
-          itens: totalInvestidoItens,
+          titulo: "Capital Investido",
+          subtitulo: "Valor original aportado em acordos ativos",
+          valor: capitalInvestido,
+          itens: capitalInvestidoItens,
         };
-      case "aguardando_destinacao":
+      case "retorno_previsto":
         return {
-          titulo: "Disponível para Destinação",
-          subtitulo: "Parcelas vencidas aguardando ação",
-          valor: aguardandoDestinacao,
-          itens: parcelasAguardando.map((p) => ({
-            acordoId: p.acordoId,
-            descricao: p.descricao,
-            valor: p.valor,
-          })),
+          titulo: "Retorno Previsto",
+          subtitulo: "Retorno total esperado ao final de todos os ciclos",
+          valor: retornoPrevisto.total,
+          itens: retornoPrevisto.itens,
         };
-      case "proximo_vencimento":
+      case "previsao_mes":
         return {
-          titulo: `Próximo Vencimento (${proximoVencimento.dataFormatada || "—"})`,
-          subtitulo: "Parcelas previstas para a próxima data",
-          valor: proximoVencimento.valor,
-          itens: proximoVencimento.itens.map((p) => ({
-            acordoId: p.acordoId,
-            descricao: p.descricao,
-            valor: p.valor,
-          })),
+          titulo: `Previsão de ${previsaoMes.mesNome}`,
+          subtitulo: "Parcelas com vencimento no mês atual",
+          valor: previsaoMes.total,
+          itens: previsaoMes.itens,
         };
     }
   };
@@ -375,23 +349,23 @@ const ClientPortal = () => {
             {/* KPIs Cards - Wrapper sutil para unificar visualmente */}
             <div className="bg-slate-50/30 dark:bg-slate-800/20 rounded-xl p-3 sm:p-4 -mx-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {/* Total Investido (Ativo) - Tom mais forte */}
+                {/* Capital Investido */}
                 <Card 
                   className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-600 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in"
-                  onClick={() => handleKpiClick("total_investido")}
+                  onClick={() => handleKpiClick("capital_investido")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
                     <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
                       <TrendingUp className="h-4 w-4 text-slate-600" strokeWidth={1.5} />
-                      Total Investido (Ativo)
+                      Capital Investido
                     </CardDescription>
                     <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
-                      R$ {totalInvestido.toLocaleString("pt-BR")}
+                      R$ {capitalInvestido.toLocaleString("pt-BR")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Capital trabalhando em {acordosAtivos.length} acordos ativos.
+                      em {acordosAtivos.length} acordos ativos
                     </p>
                     <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
                       <Info className="h-3 w-3" /> Clique para detalhes
@@ -399,29 +373,24 @@ const ClientPortal = () => {
                   </CardContent>
                 </Card>
 
-                {/* Disponível para Destinação - Tom intermediário */}
+                {/* Retorno Previsto */}
                 <Card 
-                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-400 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in [animation-delay:100ms]"
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-green-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in [animation-delay:100ms]"
                   style={{ animationFillMode: 'backwards' }}
-                  onClick={() => handleKpiClick("aguardando_destinacao")}
+                  onClick={() => handleKpiClick("retorno_previsto")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
                     <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
-                      Disponível para Destinação
-                      {aguardandoDestinacao > 0 && (
-                        <AlertCircle className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
-                      )}
+                      <Target className="h-4 w-4 text-green-600" strokeWidth={1.5} />
+                      Retorno Previsto
                     </CardDescription>
                     <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
-                      R$ {aguardandoDestinacao.toLocaleString("pt-BR")}
+                      R$ {retornoPrevisto.total.toLocaleString("pt-BR")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      {aguardandoDestinacao > 0
-                        ? "Parcelas vencidas aguardando ação."
-                        : "Nenhuma parcela aguardando destinação."}
+                      ao final de todos os ciclos
                     </p>
                     <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
                       <Info className="h-3 w-3" /> Clique para detalhes
@@ -429,24 +398,24 @@ const ClientPortal = () => {
                   </CardContent>
                 </Card>
 
-                {/* Próximo Vencimento - Tom mais suave */}
+                {/* Previsão do Mês */}
                 <Card 
-                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-slate-300 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer sm:col-span-2 lg:col-span-1 animate-fade-in [animation-delay:200ms]"
+                  className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer sm:col-span-2 lg:col-span-1 animate-fade-in [animation-delay:200ms]"
                   style={{ animationFillMode: 'backwards' }}
-                  onClick={() => handleKpiClick("proximo_vencimento")}
+                  onClick={() => handleKpiClick("previsao_mes")}
                 >
                   <CardHeader className="pb-3 sm:pb-4">
                     <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
-                      <CalendarClock className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
-                      Próximo Vencimento {proximoVencimento.dataFormatada && `(${proximoVencimento.dataFormatada})`}
+                      <CalendarDays className="h-4 w-4 text-blue-600" strokeWidth={1.5} />
+                      Previsão de {previsaoMes.mesNome}
                     </CardDescription>
                     <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
-                      R$ {proximoVencimento.valor.toLocaleString("pt-BR")}
+                      R$ {previsaoMes.total.toLocaleString("pt-BR")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      {proximoVencimento.itens.length} parcela(s) prevista(s) para o próximo ciclo.
+                      {previsaoMes.itens.length} parcela(s) no mês
                     </p>
                     <p className="text-[10px] text-muted-foreground/60 mt-2 flex items-center gap-1">
                       <Info className="h-3 w-3" /> Clique para detalhes

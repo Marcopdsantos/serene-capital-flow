@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { TrendingUp, Clock, CalendarClock } from "lucide-react";
+import { TrendingUp, Target, CalendarDays } from "lucide-react";
 
 interface KpiItem {
   acordoId: string;
@@ -15,7 +15,7 @@ interface KpiItem {
 interface KpiDetalheModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tipo: "total_investido" | "aguardando_destinacao" | "proximo_vencimento";
+  tipo: "capital_investido" | "retorno_previsto" | "previsao_mes";
   titulo: string;
   subtitulo?: string;
   valor: number;
@@ -24,20 +24,20 @@ interface KpiDetalheModalProps {
 }
 
 const tipoConfig = {
-  total_investido: {
+  capital_investido: {
     icon: TrendingUp,
-    iconClass: "text-primary",
-    borderClass: "border-l-primary",
+    iconClass: "text-slate-600",
+    borderClass: "border-l-slate-600",
   },
-  aguardando_destinacao: {
-    icon: Clock,
+  retorno_previsto: {
+    icon: Target,
+    iconClass: "text-green-600",
+    borderClass: "border-l-green-500",
+  },
+  previsao_mes: {
+    icon: CalendarDays,
     iconClass: "text-blue-600",
     borderClass: "border-l-blue-500",
-  },
-  proximo_vencimento: {
-    icon: CalendarClock,
-    iconClass: "text-slate-600",
-    borderClass: "border-l-slate-400",
   },
 };
 
