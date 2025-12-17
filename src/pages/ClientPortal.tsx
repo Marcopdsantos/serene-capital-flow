@@ -278,14 +278,14 @@ const ClientPortal = () => {
         };
       case "retorno_previsto":
         return {
-          titulo: "Retorno Previsto",
+          titulo: "Valor Total a receber",
           subtitulo: "Retorno total esperado ao final de todos os ciclos",
           valor: retornoPrevisto.total,
           itens: retornoPrevisto.itens,
         };
       case "previsao_mes":
         return {
-          titulo: `Previsão de ${previsaoMes.mesNome}`,
+          titulo: `Valor a receber em ${previsaoMes.mesNome}`,
           subtitulo: "Parcelas com vencimento no mês atual",
           valor: previsaoMes.total,
           itens: previsaoMes.itens,
@@ -349,7 +349,7 @@ const ClientPortal = () => {
             {/* KPIs Cards - Wrapper sutil para unificar visualmente */}
             <div className="bg-slate-50/30 dark:bg-slate-800/20 rounded-xl p-3 sm:p-4 -mx-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {/* Retorno Previsto */}
+                {/* Valor Total a receber */}
                 <Card 
                   className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-green-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in"
                   onClick={() => handleKpiClick("retorno_previsto")}
@@ -357,7 +357,7 @@ const ClientPortal = () => {
                   <CardHeader className="pb-3 sm:pb-4">
                     <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
                       <Target className="h-4 w-4 text-green-600" strokeWidth={1.5} />
-                      Retorno Previsto
+                      Valor Total a receber
                     </CardDescription>
                     <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
                       R$ {retornoPrevisto.total.toLocaleString("pt-BR")}
@@ -373,7 +373,7 @@ const ClientPortal = () => {
                   </CardContent>
                 </Card>
 
-                {/* Previsão do Mês */}
+                {/* Valor a receber no mês */}
                 <Card 
                   className="shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in [animation-delay:100ms]"
                   style={{ animationFillMode: 'backwards' }}
@@ -382,7 +382,7 @@ const ClientPortal = () => {
                   <CardHeader className="pb-3 sm:pb-4">
                     <CardDescription className="text-xs sm:text-sm flex items-center gap-2">
                       <CalendarDays className="h-4 w-4 text-blue-600" strokeWidth={1.5} />
-                      Previsão de {previsaoMes.mesNome}
+                      Valor a receber no mês
                     </CardDescription>
                     <CardTitle className="text-2xl sm:text-3xl font-mono mt-2 text-slate-700 dark:text-slate-300 tracking-tight">
                       R$ {previsaoMes.total.toLocaleString("pt-BR")}
