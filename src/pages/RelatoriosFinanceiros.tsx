@@ -11,7 +11,10 @@ import {
   Download, 
   Copy,
   MessageCircle,
+  Search,
+  ArrowUpDown,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { FichaCadastralModal } from "@/components/FichaCadastralModal";
 
 // Dados reais
@@ -129,11 +132,27 @@ export default function RelatoriosFinanceiros() {
   const [anoSelecionado, setAnoSelecionado] = useState("2024");
   const [clienteSelecionado, setClienteSelecionado] = useState<typeof mockClientes[0] | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
+  const [busca, setBusca] = useState("");
+  const [ordenacaoAsc, setOrdenacaoAsc] = useState(true);
 
   const handleOpenFicha = (cliente: typeof mockClientes[0]) => {
     setClienteSelecionado(cliente);
     setModalAberto(true);
   };
+
+  // Filtrar e ordenar clientes
+  const clientesFiltrados = mockClientes
+    .filter((cliente) => {
+      const termo = busca.toLowerCase();
+      return (
+        cliente.nome.toLowerCase().includes(termo) ||
+        cliente.cpf.toLowerCase().includes(termo)
+      );
+    })
+    .sort((a, b) => {
+      const comparison = a.nome.localeCompare(b.nome, "pt-BR");
+      return ordenacaoAsc ? comparison : -comparison;
+    });
 
   // Totais
   const totais = mockClientes.reduce(
@@ -155,13 +174,33 @@ export default function RelatoriosFinanceiros() {
     toast.success(`Chave PIX de ${nome.split(" ")[0]} copiada!`);
   };
 
-  const handleWhatsApp = (telefone: string, nome: string) => {
-    if (!telefone) {
+  const handleWhatsApp = (cliente: typeof mockClientes[0]) => {
+    if (!cliente.telefone) {
       toast.error("Telefone não cadastrado");
       return;
     }
-    const numero = telefone.replace(/\D/g, "");
-    window.open(`https://wa.me/55${numero}`, "_blank");
+    const numero = cliente.telefone.replace(/\D/g, "");
+    const primeiroNome = cliente.nome.split(" ")[0];
+    
+    let mensagem = `Olá ${primeiroNome}! 👋\n\nSegue o resumo financeiro do mês:\n\n`;
+    
+    if (cliente.parcelasDoMes > 0) {
+      mensagem += `📊 *Parcelas do Mês:* ${formatCurrency(cliente.parcelasDoMes)}\n`;
+    }
+    if (cliente.aPagar > 0) {
+      mensagem += `✅ *A Pagar (você recebe):* ${formatCurrency(cliente.aPagar)}\n`;
+    }
+    if (cliente.aReceber > 0) {
+      mensagem += `⚠️ *A Receber (pendente):* ${formatCurrency(cliente.aReceber)}\n`;
+    }
+    if (cliente.reinvestimentos > 0) {
+      mensagem += `🔄 *Reinvestimentos:* ${formatCurrency(cliente.reinvestimentos)}\n`;
+    }
+    
+    mensagem += `\nQualquer dúvida estamos à disposição!`;
+    
+    const mensagemEncoded = encodeURIComponent(mensagem);
+    window.open(`https://wa.me/55${numero}?text=${mensagemEncoded}`, "_blank");
   };
 
   const handleExportExcel = () => {
@@ -282,6 +321,28 @@ export default function RelatoriosFinanceiros() {
           </Card>
         </div>
 
+        {/* Search and Sort */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome ou CPF..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="pl-9 h-9"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setOrdenacaoAsc(!ordenacaoAsc)}
+            className="h-9 gap-2"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {ordenacaoAsc ? "A → Z" : "Z → A"}
+          </Button>
+        </div>
+
         {/* Data Table */}
         <Card className="border bg-card">
           <ScrollArea className="h-[600px]">
@@ -318,7 +379,7 @@ export default function RelatoriosFinanceiros() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockClientes.map((cliente) => (
+                {clientesFiltrados.map((cliente) => (
                   <TableRow 
                     key={cliente.id} 
                     className="hover:bg-muted/50 transition-colors"
@@ -374,7 +435,7 @@ export default function RelatoriosFinanceiros() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => handleWhatsApp(cliente.telefone, cliente.nome)}
+                            onClick={() => handleWhatsApp(cliente)}
                             disabled={!cliente.telefone}
                           >
                             <MessageCircle className={`h-4 w-4 ${cliente.telefone ? "text-emerald-600" : "text-muted-foreground"}`} />
