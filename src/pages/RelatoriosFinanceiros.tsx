@@ -19,12 +19,12 @@ import { FichaCadastralModal } from "@/components/FichaCadastralModal";
 
 // Dados reais
 const mockClientes = [
-  { id: "1", nome: "Adnan Ayoub Fabiano", cpf: "363.870.188-38", parcelasDoMes: 100000, novosAcordos: 36000, aPagar: 64000, reinvestimentos: 36000, aReceber: 0, telefone: "" },
-  { id: "2", nome: "Adriano Harari", cpf: "087.491.238-58", parcelasDoMes: 60000, novosAcordos: 16500, aPagar: 43500, reinvestimentos: 16500, aReceber: 0, telefone: "" },
-  { id: "3", nome: "Adriano Pinto Menin", cpf: "216.402.368-48", parcelasDoMes: 20000, novosAcordos: 28000, aPagar: 0, reinvestimentos: 20000, aReceber: 8000, telefone: "" },
-  { id: "4", nome: "Ahmad Kalil Ayoub", cpf: "123.777.878-60", parcelasDoMes: 100000, novosAcordos: 9100, aPagar: 90900, reinvestimentos: 9100, aReceber: 0, telefone: "" },
-  { id: "5", nome: "Alison Bernardes Leal", cpf: "454.082.298-58", parcelasDoMes: 50000, novosAcordos: 0, aPagar: 50000, reinvestimentos: 0, aReceber: 0, telefone: "" },
-  { id: "6", nome: "André Costa Battisti", cpf: "073.042.569-07", parcelasDoMes: 245000, novosAcordos: 151200, aPagar: 93800, reinvestimentos: 151200, aReceber: 0, telefone: "" },
+  { id: "1", nome: "Adnan Ayoub Fabiano", cpf: "363.870.188-38", parcelasDoMes: 100000, novosAcordos: 36000, aPagar: 64000, reinvestimentos: 36000, aReceber: 0, telefone: "11999887766" },
+  { id: "2", nome: "Adriano Harari", cpf: "087.491.238-58", parcelasDoMes: 60000, novosAcordos: 16500, aPagar: 43500, reinvestimentos: 16500, aReceber: 0, telefone: "11988776655" },
+  { id: "3", nome: "Adriano Pinto Menin", cpf: "216.402.368-48", parcelasDoMes: 20000, novosAcordos: 28000, aPagar: 0, reinvestimentos: 20000, aReceber: 8000, telefone: "11977665544" },
+  { id: "4", nome: "Ahmad Kalil Ayoub", cpf: "123.777.878-60", parcelasDoMes: 100000, novosAcordos: 9100, aPagar: 90900, reinvestimentos: 9100, aReceber: 0, telefone: "11966554433" },
+  { id: "5", nome: "Alison Bernardes Leal", cpf: "454.082.298-58", parcelasDoMes: 50000, novosAcordos: 0, aPagar: 50000, reinvestimentos: 0, aReceber: 0, telefone: "11955443322" },
+  { id: "6", nome: "André Costa Battisti", cpf: "073.042.569-07", parcelasDoMes: 245000, novosAcordos: 151200, aPagar: 93800, reinvestimentos: 151200, aReceber: 0, telefone: "11944332211" },
   { id: "7", nome: "André Jordão", cpf: "419.317.758-00", parcelasDoMes: 50000, novosAcordos: 0, aPagar: 50000, reinvestimentos: 0, aReceber: 0, telefone: "" },
   { id: "8", nome: "Brian Peterson Júlio de Paula Moraes", cpf: "474.820.778-71", parcelasDoMes: 50000, novosAcordos: 11600, aPagar: 38400, reinvestimentos: 11600, aReceber: 0, telefone: "" },
   { id: "9", nome: "Bruno Alfredo Frantz", cpf: "077.419.949-05", parcelasDoMes: 77000, novosAcordos: 72100, aPagar: 4900, reinvestimentos: 72100, aReceber: 0, telefone: "" },
@@ -345,15 +345,6 @@ export default function RelatoriosFinanceiros() {
               className="pl-9 h-9"
             />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setOrdenacaoAsc(!ordenacaoAsc)}
-            className="h-9 gap-2"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            {ordenacaoAsc ? "A → Z" : "Z → A"}
-          </Button>
           <Select value={filtroStatus} onValueChange={(value: "todos" | "pagamentos" | "recebimentos") => setFiltroStatus(value)}>
             <SelectTrigger className="w-40 h-9 text-sm">
               <SelectValue />
@@ -374,7 +365,14 @@ export default function RelatoriosFinanceiros() {
               <TableHeader className="sticky top-0 bg-card z-10">
                 <TableRow className="border-b hover:bg-transparent">
                   <TableHead className="text-slate-700 dark:text-slate-300 font-medium w-[220px]">
-                    Nome
+                    <button
+                      onClick={() => setOrdenacaoAsc(!ordenacaoAsc)}
+                      className="flex items-center gap-1 hover:text-primary transition-colors"
+                    >
+                      Nome
+                      <ArrowUpDown className="h-3.5 w-3.5" />
+                      <span className="text-xs text-muted-foreground">({ordenacaoAsc ? "A-Z" : "Z-A"})</span>
+                    </button>
                   </TableHead>
                   <TableHead className="text-slate-700 dark:text-slate-300 font-medium w-[140px]">
                     CPF
