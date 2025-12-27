@@ -288,31 +288,31 @@ export default function RelatoriosFinanceiros() {
             <Table>
               <TableHeader className="sticky top-0 bg-card z-10">
                 <TableRow className="border-b hover:bg-transparent">
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium w-[220px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium w-[220px]">
                     Nome
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium w-[140px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium w-[140px]">
                     CPF
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-right w-[120px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-right w-[120px]">
                     Parcelas Mês
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-right w-[120px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-right w-[120px]">
                     Novos Acordos
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-right w-[120px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-right w-[120px]">
                     A Pagar
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-right w-[120px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-right w-[120px]">
                     A Receber
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-right w-[120px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-right w-[120px]">
                     Reinvest.
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-center w-[50px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-center w-[50px]">
                     PIX
                   </TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium text-center w-[50px]">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-medium text-center w-[50px]">
                     Msg
                   </TableHead>
                 </TableRow>
@@ -323,7 +323,7 @@ export default function RelatoriosFinanceiros() {
                     key={cliente.id} 
                     className="hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell className="font-medium text-foreground py-4">
+                    <TableCell className="font-medium text-slate-900 dark:text-slate-100 py-4">
                       <button
                         onClick={() => handleOpenFicha(cliente)}
                         className="text-left hover:text-primary hover:underline underline-offset-2 transition-colors cursor-pointer"
@@ -331,7 +331,7 @@ export default function RelatoriosFinanceiros() {
                         {cliente.nome}
                       </button>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground font-mono py-4">
+                    <TableCell className="text-sm text-slate-500 dark:text-slate-400 font-mono py-4">
                       {cliente.cpf || "-"}
                     </TableCell>
                     <TableCell className="text-right font-mono py-4">
@@ -340,13 +340,13 @@ export default function RelatoriosFinanceiros() {
                     <TableCell className="text-right font-mono py-4">
                       {formatCurrency(cliente.novosAcordos)}
                     </TableCell>
-                    <TableCell className={`text-right font-mono py-4 ${cliente.aPagar > 0 ? "text-emerald-600" : "text-muted-foreground"}`}>
+                    <TableCell className={`text-right font-mono py-4 ${cliente.aPagar > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>
                       {formatCurrency(cliente.aPagar)}
                     </TableCell>
-                    <TableCell className={`text-right font-mono py-4 ${cliente.aReceber > 0 ? "text-red-500" : "text-muted-foreground"}`}>
+                    <TableCell className={`text-right font-mono py-4 ${cliente.aReceber > 0 ? "text-red-500 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}>
                       {formatCurrency(cliente.aReceber)}
                     </TableCell>
-                    <TableCell className="text-right font-mono py-4">
+                    <TableCell className="text-right font-mono text-slate-700 dark:text-slate-300 py-4">
                       {formatCurrency(cliente.reinvestimentos)}
                     </TableCell>
                     <TableCell className="text-center py-4">
