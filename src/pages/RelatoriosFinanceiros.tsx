@@ -331,7 +331,11 @@ export default function RelatoriosFinanceiros() {
         </div>
 
         {/* Search and Sort */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm text-muted-foreground">
+            {clientesFiltrados.length} de {mockClientes.length} clientes
+          </span>
+          <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -359,7 +363,8 @@ export default function RelatoriosFinanceiros() {
               <SelectItem value="pagamentos">Só Pagamentos</SelectItem>
               <SelectItem value="recebimentos">Só Recebimentos</SelectItem>
             </SelectContent>
-          </Select>
+            </Select>
+          </div>
         </div>
 
         {/* Data Table */}
