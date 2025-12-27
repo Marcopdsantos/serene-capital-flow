@@ -134,6 +134,7 @@ export default function RelatoriosFinanceiros() {
   const [modalAberto, setModalAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [ordenacaoAsc, setOrdenacaoAsc] = useState(true);
+  const [filtroStatus, setFiltroStatus] = useState<"todos" | "pagamentos" | "recebimentos">("todos");
 
   const handleOpenFicha = (cliente: typeof mockClientes[0]) => {
     setClienteSelecionado(cliente);
@@ -144,10 +145,18 @@ export default function RelatoriosFinanceiros() {
   const clientesFiltrados = mockClientes
     .filter((cliente) => {
       const termo = busca.toLowerCase();
-      return (
-        cliente.nome.toLowerCase().includes(termo) ||
-        cliente.cpf.toLowerCase().includes(termo)
-      );
+      const matchBusca = cliente.nome.toLowerCase().includes(termo) ||
+        cliente.cpf.toLowerCase().includes(termo);
+      
+      if (!matchBusca) return false;
+      
+      if (filtroStatus === "pagamentos") {
+        return cliente.aPagar > 0;
+      }
+      if (filtroStatus === "recebimentos") {
+        return cliente.aReceber > 0;
+      }
+      return true;
     })
     .sort((a, b) => {
       const comparison = a.nome.localeCompare(b.nome, "pt-BR");
@@ -341,6 +350,16 @@ export default function RelatoriosFinanceiros() {
             <ArrowUpDown className="h-4 w-4" />
             {ordenacaoAsc ? "A → Z" : "Z → A"}
           </Button>
+          <Select value={filtroStatus} onValueChange={(value: "todos" | "pagamentos" | "recebimentos") => setFiltroStatus(value)}>
+            <SelectTrigger className="w-40 h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="pagamentos">Só Pagamentos</SelectItem>
+              <SelectItem value="recebimentos">Só Recebimentos</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Data Table */}
