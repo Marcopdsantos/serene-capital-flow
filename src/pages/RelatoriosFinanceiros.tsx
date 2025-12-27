@@ -12,6 +12,7 @@ import {
   Copy,
   MessageCircle,
 } from "lucide-react";
+import { FichaCadastralModal } from "@/components/FichaCadastralModal";
 
 // Dados reais
 const mockClientes = [
@@ -126,6 +127,13 @@ const formatCurrencyTotal = (value: number) => {
 export default function RelatoriosFinanceiros() {
   const [mesSelecionado, setMesSelecionado] = useState("12");
   const [anoSelecionado, setAnoSelecionado] = useState("2024");
+  const [clienteSelecionado, setClienteSelecionado] = useState<typeof mockClientes[0] | null>(null);
+  const [modalAberto, setModalAberto] = useState(false);
+
+  const handleOpenFicha = (cliente: typeof mockClientes[0]) => {
+    setClienteSelecionado(cliente);
+    setModalAberto(true);
+  };
 
   // Totais
   const totais = mockClientes.reduce(
@@ -316,7 +324,12 @@ export default function RelatoriosFinanceiros() {
                     className="hover:bg-muted/50 transition-colors"
                   >
                     <TableCell className="font-medium text-foreground py-4">
-                      {cliente.nome}
+                      <button
+                        onClick={() => handleOpenFicha(cliente)}
+                        className="text-left hover:text-primary hover:underline underline-offset-2 transition-colors cursor-pointer"
+                      >
+                        {cliente.nome}
+                      </button>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground font-mono py-4">
                       {cliente.cpf || "-"}
@@ -399,6 +412,21 @@ export default function RelatoriosFinanceiros() {
             </Table>
           </ScrollArea>
         </Card>
+
+        {/* Modal Ficha Cadastral */}
+        <FichaCadastralModal
+          open={modalAberto}
+          onOpenChange={setModalAberto}
+          cliente={clienteSelecionado ? {
+            id: clienteSelecionado.id,
+            nome: clienteSelecionado.nome,
+            telefone: clienteSelecionado.telefone || undefined,
+            totalInvestido: clienteSelecionado.parcelasDoMes,
+            totalAcordos: clienteSelecionado.novosAcordos > 0 ? 1 : 0,
+            saldoDisponivel: clienteSelecionado.aReceber,
+            observacoesPendencias: clienteSelecionado.aPagar > 0 ? `Pendência de R$ ${clienteSelecionado.aPagar.toLocaleString('pt-BR')}` : ""
+          } : null}
+        />
       </div>
     </TooltipProvider>
   );
