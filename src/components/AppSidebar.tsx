@@ -1,4 +1,4 @@
-import { LayoutDashboard, Briefcase, Users, DollarSign, FileText, Archive, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Briefcase, Users, DollarSign, FileText, Archive, TrendingUp, FileSpreadsheet } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -51,6 +51,7 @@ export function AppSidebar() {
       items: [
         { title: "Fluxo de Caixa", url: "/dashboard/financeiro/fluxo" },
         { title: "Acertos Manuais", url: "/dashboard/financeiro/acertos" },
+        { title: "Relatórios", url: "/dashboard/financeiro/relatorios" },
       ],
     },
   ];

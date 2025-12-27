@@ -15,6 +15,7 @@ import FluxoCaixaPage from "./pages/FluxoCaixaPage";
 import AcertosManuais from "./pages/AcertosManuais";
 import ComissoesAgentes from "./pages/ComissoesAgentes";
 import MesaLiquidacao from "./pages/MesaLiquidacao";
+import RelatoriosFinanceiros from "./pages/RelatoriosFinanceiros";
 import ClientPortal from "./pages/ClientPortal";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="financeiro/fluxo" element={<FluxoCaixaPage />} />
             <Route path="financeiro/acertos" element={<AcertosManuais />} />
             <Route path="financeiro/comissoes" element={<ComissoesAgentes />} />
+            <Route path="financeiro/relatorios" element={<RelatoriosFinanceiros />} />
             <Route path="operacoes/mesa-liquidacao" element={<MesaLiquidacao />} />
           </Route>
           <Route path="/portal" element={<ClientPortal />} />
