@@ -165,9 +165,9 @@ All colors MUST be HSL.
 
   /* Números e valores monetários */
   .font-mono {
-    font-family: 'Inter', ui-monospace, monospace;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   /* Classe para valores monetários */
